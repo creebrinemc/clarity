@@ -1,0 +1,5 @@
+# Robots.txt for Clarity (https://clarity.creebrine.com)
+User-agent: *
+Allow: /
+
+Sitemap: https://clarity.creebrine.com/sitemap.xml
