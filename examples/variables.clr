@@ -1,0 +1,5 @@
+set name to "Creebrine"
+set age to 14
+
+say "Name: " + name
+say "Age: " + age

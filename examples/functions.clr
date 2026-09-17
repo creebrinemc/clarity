@@ -1,0 +1,28 @@
+# Clarity 0.3 functions and closures example
+
+function greet taking name {
+    say "Hello, " + name
+}
+
+function add taking a and b {
+    return a + b
+}
+
+greet("Creebrine")
+
+set result to add(10, 20)
+say "Result: " + result
+
+# Lexical closures
+function make_counter {
+    set count to 0
+    function increment {
+        set count to count + 1
+        return count
+    }
+    return increment
+}
+
+set counter to make_counter()
+say "Count: " + counter()
+say "Count: " + counter()

@@ -1,0 +1,32 @@
+# Clarity 0.2 control-flow example
+
+set score to 85
+
+if score >= 90 {
+    say "Excellent!"
+} else if score >= 70 {
+    say "Good job!"
+} else {
+    say "Keep practicing!"
+}
+
+set count to 0
+while count < 3 {
+    say "Count: " + count
+    set count to count + 1
+}
+
+set inventory to ["Sword", "Shield", "Potion"]
+for item in inventory {
+    if item == "Shield" {
+        continue
+    }
+    say "Item: " + item
+}
+
+for number from 1 to 10 step 2 {
+    say number
+    if number == 5 {
+        break
+    }
+}

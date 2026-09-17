@@ -1,0 +1,6 @@
+set first to 10
+set second to 5
+
+set result to (first + second) * 2
+
+say result
