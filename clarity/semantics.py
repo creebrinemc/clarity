@@ -1,7 +1,7 @@
 """Explicit runtime rules for the currently supported Clarity values."""
 
 from .errors import RuntimeError
-from .runtime import ClarityFunction
+from .runtime import ClarityFunction, ClarityNativeFunction
 
 
 def is_number(value: object) -> bool:
@@ -72,7 +72,7 @@ def stringify(value: object) -> str:
     if value is True: return "true"
     if value is False: return "false"
     if isinstance(value, str): return value
-    if isinstance(value, ClarityFunction): return f"<function {value.display_name()}>"
+    if isinstance(value, (ClarityFunction, ClarityNativeFunction)): return f"<function {value.display_name()}>"
     if isinstance(value, list): return "[" + ", ".join(_literal_string(item) for item in value) + "]"
     if isinstance(value, dict):
         pairs = (f"{_literal_string(key)}: {_literal_string(item)}" for key, item in value.items())
@@ -93,7 +93,7 @@ def type_name(value: object) -> str:
     if isinstance(value, str): return "string"
     if isinstance(value, list): return "list"
     if isinstance(value, dict): return "dictionary"
-    if isinstance(value, ClarityFunction): return "function"
+    if isinstance(value, (ClarityFunction, ClarityNativeFunction)): return "function"
     return type(value).__name__
 
 

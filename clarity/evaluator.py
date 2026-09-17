@@ -6,9 +6,10 @@ from . import ast
 from .environment import Environment
 from .errors import RuntimeError
 from . import semantics
-from .runtime import ClarityDict, ClarityFunction
+from .runtime import ClarityDict, ClarityFunction, ClarityNativeFunction
+from .stdlib import get_standard_library
 
-CLARITY_BUILTINS: dict[str, object] = {}
+CLARITY_BUILTINS: dict[str, ClarityNativeFunction] = get_standard_library()
 
 
 class _LoopSignal(Exception):
@@ -32,7 +33,11 @@ class _ReturnSignal(Exception):
 
 class Evaluator:
     def __init__(self, environment: Environment | None = None, output=None):
-        self.environment = environment or Environment()
+        if environment is None:
+            self.environment = Environment()
+            self.environment.values.update(CLARITY_BUILTINS)
+        else:
+            self.environment = environment
         self.output = output or print
         self.loop_depth = 0
         self.function_depth = 0
@@ -177,13 +182,15 @@ class Evaluator:
     def visit_CallNode(self, node: ast.CallNode):
         callee = self.evaluate(node.callee)
         arguments = [self.evaluate(argument) for argument in node.arguments]
-        if not isinstance(callee, ClarityFunction):
-            raise RuntimeError("Can only call functions")
-        if len(arguments) != len(callee.parameters):
-            raise RuntimeError(
-                f"Function '{callee.display_name()}' expects {len(callee.parameters)} argument(s), got {len(arguments)}"
-            )
-        return self._call_function(callee, arguments)
+        if isinstance(callee, ClarityFunction):
+            if len(arguments) != len(callee.parameters):
+                raise RuntimeError(
+                    f"Function '{callee.display_name()}' expects {len(callee.parameters)} argument(s), got {len(arguments)}"
+                )
+            return self._call_function(callee, arguments)
+        if isinstance(callee, ClarityNativeFunction):
+            return callee.call(arguments)
+        raise RuntimeError("Can only call functions")
 
     def visit_ExpressionStatementNode(self, node: ast.ExpressionStatementNode):
         return self.evaluate(node.expression)

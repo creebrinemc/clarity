@@ -1,6 +1,6 @@
 # Clarity
 
-Clarity is an early, readable general-purpose programming language prototype. This repository contains Clarity 0.4.0: a hand-written lexer, recursive-descent parser, AST, and interpreter written in Python.
+Clarity is an early, readable general-purpose programming language prototype. This repository contains Clarity 0.5.0: a hand-written lexer, recursive-descent parser, AST, interpreter, and built-in standard library written in Python.
 
 ## Run an example
 
@@ -10,21 +10,20 @@ python -m clarity.cli examples/calculator.clr
 python -m clarity.cli examples/control_flow.clr
 python -m clarity.cli examples/functions.clr
 python -m clarity.cli examples/data_access.clr
+python -m clarity.cli examples/standard_library.clr
 ```
 
 ```clr
-set user to {
-    name: "Creebrine",
-    scores: [95, 100]
-}
+set name to "  Clarity  "
+say uppercase(trim(name))
 
-if user["scores"][0] is at least 90 {
-    say user["name"] + " passed with distinction!"
-}
+set scores to [88, 42, 95, 70]
+say "Sorted: " + sort(scores)
+say "Lowest: " + min(scores)
+say "Square root: " + sqrt(81)
 
-repeat 2 times {
-    say "Keep up the great work!"
-}
+set roll to random(1, 6)
+say "Dice roll: " + roll
 ```
 
 ## Development
@@ -34,4 +33,4 @@ python -m pip install -e ".[dev]"
 python -m pytest
 ```
 
-Implemented syntax and limitations are recorded in [SPEC.md](SPEC.md).
+Implemented syntax, standard-library documentation, and limitations are recorded in [SPEC.md](SPEC.md).

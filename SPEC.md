@@ -1,8 +1,102 @@
-# Clarity 0.4.0 Specification
+# Clarity 0.5.0 Specification
 
 ## Language philosophy
 
-Clarity aims for readable, English-inspired syntax while keeping common code concise. Version 0.4.0 introduces list, dictionary, and string indexing, indexed assignments, English comparison aliases, the `for each` loop form, and `repeat N times` loops.
+Clarity aims for readable, English-inspired syntax while keeping common code concise. Version 0.5.0 introduces a globally available standard library covering text manipulation, collection utilities, math functions, random selection, and file operations.
+
+## Standard Library
+
+Clarity uses a hybrid standard-library model:
+- Common/core functionality is globally available without imports (e.g. `length`, `sqrt`, `uppercase`, `random`).
+- Specialized future libraries will use modules and namespaces (e.g. `import json; json.parse(...)`). Imports and namespaces are intentionally not part of 0.5.0 and will arrive in a future milestone.
+
+Standard library functions are first-class callable values, printable as `<function name>`, assignable to variables, and passable to higher-order functions. Standard library errors produce proper Clarity runtime errors with source spans and never leak raw host exceptions.
+
+### Text Functions
+
+* `length(value)`: Returns the integer number of characters in a string, items in a list, or key-value entries in a dictionary.
+* `uppercase(text)`: Returns a new string with all characters converted to uppercase. Requires a string argument.
+* `lowercase(text)`: Returns a new string with all characters converted to lowercase. Requires a string argument.
+* `trim(text)`: Returns a new string with leading and trailing whitespace removed. Requires a string argument.
+* `contains(text, substring)`: Returns `true` if `substring` is found inside `text`, otherwise `false`. Both arguments must be strings.
+* `replace(text, old, new)`: Returns a new string with all occurrences of `old` replaced by `new`. All three arguments must be strings.
+* `split(text, separator)`: Splits `text` by `separator` and returns a Clarity list of strings. `separator` cannot be empty.
+* `join(items, separator)`: Joins elements of the `items` list into a string separated by `separator`. Non-string elements in `items` are converted to their Clarity display form.
+
+```clr
+set name to "  Creebrine  "
+say uppercase(trim(name))               # "CREEBRINE"
+say contains(name, "Cree")             # true
+say replace("banana", "a", "o")        # "bonono"
+say split("a,b,c", ",")                # ["a", "b", "c"]
+say join(["one", "two", "three"], "-") # "one-two-three"
+```
+
+### Collection Utilities
+
+* `length(collection)`: Returns the number of items in a list, dictionary, or string.
+* `contains(collection, value)`:
+  * For lists: returns `true` if any element matches `value` using Clarity equality (`1 != true`).
+  * For dictionaries: returns `true` if `value` exists as a key in the dictionary.
+* `reverse(collection)`: Returns a new reversed copy of a list or string. The original collection is not mutated.
+* `sort(collection)`: Returns a new sorted copy of a list. The original list is not mutated.
+  * All elements must be numbers (sorted numerically) or all elements must be strings (sorted lexicographically).
+  * Lists with mixed types or unsupported element types produce a Clarity runtime error.
+
+```clr
+set items to [4, 1, 3, 2]
+say sort(items)     # [1, 2, 3, 4]
+say reverse(items)  # [2, 3, 1, 4]
+say items           # [4, 1, 3, 2] (unchanged)
+```
+
+### Math Functions
+
+* `abs(number)`: Returns the absolute value of a number. Preserves integer or decimal types.
+* `floor(number)`: Returns the largest integer less than or equal to `number`.
+* `ceil(number)`: Returns the smallest integer greater than or equal to `number`.
+* `round(number [, digits])`: Rounds `number` to the nearest integer, or to `digits` decimal places if `digits` is specified.
+* `min(...)`: Returns the minimum value. Accepts either multiple arguments (e.g. `min(1, 2, 3)`) or a single list (e.g. `min([1, 2, 3])`). All values must be numbers or all strings.
+* `max(...)`: Returns the maximum value. Accepts either multiple arguments or a single list.
+* `sqrt(number)`: Returns the square root of `number`. Returns an exact integer if `number` is an integer perfect square, otherwise a float. Negative numbers produce a runtime error.
+* `power(base, exponent)`: Returns `base` raised to `exponent`. Division by zero in negative exponents or fractional powers of negative numbers produce a runtime error.
+
+```clr
+say sqrt(25)        # 5
+say power(2, 8)     # 256
+say min(10, 5, 20)  # 5
+say max([1, 99, 4]) # 99
+```
+
+### Random Functions
+
+* `random(minimum, maximum)`:
+  * If both `minimum` and `maximum` are integers, returns a random integer in `[minimum, maximum]` inclusive.
+  * If either bound is a decimal, returns a random uniform float in `[minimum, maximum]`.
+  * If `minimum > maximum`, a runtime error is raised.
+* `choose(items)`: Returns a randomly selected element from a non-empty list or string. Empty collections produce a runtime error.
+
+```clr
+set roll to random(1, 6)
+set pick to choose(["apple", "banana", "cherry"])
+```
+
+### File Operations
+
+* `read_file(path)`: Reads a text file using UTF-8 encoding. Nonexistent files or read errors produce a Clarity runtime error.
+* `write_file(path, content)`: Writes string `content` to `path` using UTF-8 encoding. Creates parent directories if needed. Returns `nothing`.
+* `file_exists(path)`: Returns `true` if a file or directory exists at `path`, otherwise `false`.
+
+```clr
+write_file("data.txt", "Hello Clarity!")
+if file_exists("data.txt") {
+    say read_file("data.txt")
+}
+```
+
+Filesystem operations are abstracted to allow pluggable backends and sandboxed implementations for browser playgrounds.
+
+---
 
 ## Lexical structure
 
@@ -261,4 +355,4 @@ Use `#` for a line comment.
 
 ## Current limitations
 
-There are no anonymous functions, default parameters, typed parameters, classes, modules, static analysis, formatter, package manager, or compilation backends. These are planned future capabilities and are not implemented in 0.4.0.
+There are no anonymous functions, default parameters, typed parameters, classes, modules/imports, static analysis, formatter, package manager, or compilation backends. These are planned future capabilities and are not implemented in 0.5.0.

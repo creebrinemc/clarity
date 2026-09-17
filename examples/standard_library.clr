@@ -1,0 +1,31 @@
+# Clarity 0.5 — Standard Library Example
+
+# 1. Text Manipulation
+set greeting to "  Welcome to Clarity  "
+say "Trimmed & Uppercase: " + uppercase(trim(greeting))
+
+set words to split("clarity,simplicity,elegance", ",")
+say "Joined words: " + join(words, " -> ")
+say "Contains 'simplicity': " + contains(greeting, "Clarity")
+
+# 2. Collections
+set scores to [88, 42, 95, 70, 100]
+say "Total scores: " + length(scores)
+say "Sorted scores: " + sort(scores)
+say "Reversed scores: " + reverse(scores)
+say "Lowest score: " + min(scores)
+say "Highest score: " + max(scores)
+
+# 3. Math
+say "Square root of 81: " + sqrt(81)
+say "Power (2^8): " + power(2, 8)
+say "Floor of 7.9: " + floor(7.9)
+say "Ceiling of 7.1: " + ceil(7.1)
+say "Rounded 3.14159 to 2 digits: " + round(3.14159, 2)
+
+# 4. Random Selection
+set roll to random(1, 6)
+say "Rolled a die (1-6): " + roll
+
+set options to ["apple", "banana", "cherry"]
+say "Chosen fruit: " + choose(options)

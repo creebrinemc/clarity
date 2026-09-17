@@ -1,9 +1,9 @@
-"""Runtime-only Clarity values that do not belong in the AST."""
-
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from . import ast
+from .errors import RuntimeError
 from .source import SourceSpan
 
 if TYPE_CHECKING:
@@ -20,6 +20,41 @@ class ClarityFunction:
 
     def display_name(self) -> str:
         return self.name or "anonymous"
+
+
+@dataclass(slots=True)
+class ClarityNativeFunction:
+    name: str
+    func: Callable[..., object]
+    min_arity: int
+    max_arity: int | None = None  # None means exactly min_arity, -1 means variadic >= min_arity
+    doc: str = ""
+
+    def display_name(self) -> str:
+        return self.name
+
+    def call(self, arguments: list[object]) -> object:
+        arg_count = len(arguments)
+        if self.max_arity is None:
+            if arg_count != self.min_arity:
+                raise RuntimeError(
+                    f"Function '{self.name}' expects {self.min_arity} argument(s), got {arg_count}"
+                )
+        elif self.max_arity == -1:
+            if arg_count < self.min_arity:
+                raise RuntimeError(
+                    f"Function '{self.name}' expects at least {self.min_arity} argument(s), got {arg_count}"
+                )
+        else:
+            if not (self.min_arity <= arg_count <= self.max_arity):
+                if self.min_arity == self.max_arity:
+                    raise RuntimeError(
+                        f"Function '{self.name}' expects {self.min_arity} argument(s), got {arg_count}"
+                    )
+                raise RuntimeError(
+                    f"Function '{self.name}' expects between {self.min_arity} and {self.max_arity} argument(s), got {arg_count}"
+                )
+        return self.func(*arguments)
 
 
 def _dict_key(key: object) -> tuple[type, object]:
