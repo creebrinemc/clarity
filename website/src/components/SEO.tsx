@@ -5,6 +5,7 @@ interface SEOProps {
   description?: string;
   canonicalPath?: string;
   ogType?: string;
+  noIndex?: boolean;
 }
 
 const CANONICAL_BASE = 'https://clarity.creebrine.com';
@@ -17,6 +18,7 @@ export const SEO: React.FC<SEOProps> = ({
   description = DEFAULT_DESCRIPTION,
   canonicalPath = '',
   ogType = 'website',
+  noIndex = false,
 }) => {
   useEffect(() => {
     // 1. Page Title
@@ -40,7 +42,15 @@ export const SEO: React.FC<SEOProps> = ({
     // 3. Description
     setMetaTag('name', 'description', description);
 
-    // 4. OpenGraph
+    // 4. Robots NoIndex (for QA gallery)
+    const robotsEl = document.querySelector('meta[name="robots"]') as HTMLMetaElement;
+    if (noIndex) {
+      setMetaTag('name', 'robots', 'noindex, nofollow');
+    } else if (robotsEl) {
+      robotsEl.remove();
+    }
+
+    // 5. OpenGraph
     const cleanPath = canonicalPath.startsWith('/') ? canonicalPath : (canonicalPath ? `/${canonicalPath}` : '');
     const canonicalUrl = `${CANONICAL_BASE}${cleanPath}`;
     setMetaTag('property', 'og:title', fullTitle);
@@ -48,11 +58,11 @@ export const SEO: React.FC<SEOProps> = ({
     setMetaTag('property', 'og:url', canonicalUrl);
     setMetaTag('property', 'og:type', ogType);
 
-    // 5. Twitter
+    // 6. Twitter
     setMetaTag('property', 'twitter:title', fullTitle);
     setMetaTag('property', 'twitter:description', description);
 
-    // 6. Canonical Link Tag
+    // 7. Canonical Link Tag
     let canonicalLink = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
     if (!canonicalLink) {
       canonicalLink = document.createElement('link');
@@ -60,8 +70,9 @@ export const SEO: React.FC<SEOProps> = ({
       document.head.appendChild(canonicalLink);
     }
     canonicalLink.setAttribute('href', canonicalUrl);
-  }, [title, description, canonicalPath, ogType]);
+  }, [title, description, canonicalPath, ogType, noIndex]);
 
   return null;
 };
+
 

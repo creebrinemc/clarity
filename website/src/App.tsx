@@ -8,6 +8,7 @@ import { Examples } from './pages/Examples';
 import { Install } from './pages/Install';
 import { Roadmap } from './pages/Roadmap';
 import { NotFound } from './pages/NotFound';
+import { VisualQA } from './pages/VisualQA';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -36,6 +37,7 @@ export const App: React.FC = () => {
             <Route path="/examples" element={<Examples />} />
             <Route path="/install" element={<Install />} />
             <Route path="/roadmap" element={<Roadmap />} />
+            <Route path="/visual-qa" element={<VisualQA />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
