@@ -324,3 +324,43 @@ def test_parser_errors_with_source_locations(source, match_msg):
         parse(source)
     assert error.value.line is not None
     assert error.value.column is not None
+
+
+def test_trailing_commas_in_collections_and_calls():
+    _, output = execute(
+        "set items to [1, 2, 3,]\n"
+        "set obj to { a: 10, b: 20, }\n"
+        "function add taking x and y { return x + y }\n"
+        "say items\n"
+        "say obj[\"a\"]\n"
+        "say add(5, 7,)\n"
+    )
+    assert output == ["[1, 2, 3]", "10", "12"]
+
+
+def test_float_exact_integer_indexing():
+    _, output = execute(
+        "set items to [\"first\", \"second\", \"third\"]\n"
+        "say items[4 / 2]\n"
+        "set table to { 1: \"found 1\" }\n"
+        "say table[2 / 2]\n"
+    )
+    assert output == ["third", "found 1"]
+
+
+def test_closure_mutates_indexed_structures():
+    _, output = execute(
+        "function make_inventory_manager {\n"
+        "  set inv to [\"Sword\", \"Shield\"]\n"
+        "  function replace_first taking item {\n"
+        "    set inv[0] to item\n"
+        "    return inv\n"
+        "  }\n"
+        "  return replace_first\n"
+        "}\n"
+        "set manager to make_inventory_manager()\n"
+        "say manager(\"Bow\")\n"
+        "say manager(\"Staff\")\n"
+    )
+    assert output == ["[\"Bow\", \"Shield\"]", "[\"Staff\", \"Shield\"]"]
+

@@ -261,14 +261,23 @@ class Parser:
         while True:
             if self._match(TokenType.LEFT_PAREN):
                 arguments = []
+                self._skip_newlines()
                 if not self._check(TokenType.RIGHT_PAREN):
                     while True:
+                        self._skip_newlines()
+                        if self._check(TokenType.RIGHT_PAREN): break
                         arguments.append(self._expression())
+                        self._skip_newlines()
                         if not self._match(TokenType.COMMA): break
+                        self._skip_newlines()
+                        if self._check(TokenType.RIGHT_PAREN): break
+                self._skip_newlines()
                 closing = self._consume(TokenType.RIGHT_PAREN, "Expected ')' after function arguments")
                 expression = ast.CallNode(expression, arguments, expression.span.cover(closing.span))
             elif self._match(TokenType.LEFT_BRACKET):
+                self._skip_newlines()
                 index = self._expression()
+                self._skip_newlines()
                 closing = self._consume(TokenType.RIGHT_BRACKET, "Expected ']' after index")
                 expression = ast.IndexNode(expression, index, expression.span.cover(closing.span))
             else:
@@ -284,7 +293,9 @@ class Parser:
             return ast.IdentifierNode(token.value, token.span)
         if self._match(TokenType.LEFT_PAREN):
             opening = self._previous()
+            self._skip_newlines()
             expr = self._expression()
+            self._skip_newlines()
             closing = self._consume(TokenType.RIGHT_PAREN, "Expected ')' after expression")
             expr.span = opening.span.cover(closing.span)
             return expr
@@ -299,10 +310,12 @@ class Parser:
         if not self._check(TokenType.RIGHT_BRACKET):
             while True:
                 self._skip_newlines()
+                if self._check(TokenType.RIGHT_BRACKET): break
                 elements.append(self._expression())
                 self._skip_newlines()
                 if not self._match(TokenType.COMMA): break
                 self._skip_newlines()
+                if self._check(TokenType.RIGHT_BRACKET): break
         self._skip_newlines()
         closing = self._consume(TokenType.RIGHT_BRACKET, "Expected ']' after list")
         return ast.ListNode(elements, opening.span.cover(closing.span))
@@ -314,6 +327,7 @@ class Parser:
         if not self._check(TokenType.RIGHT_BRACE):
             while True:
                 self._skip_newlines()
+                if self._check(TokenType.RIGHT_BRACE): break
                 if self._match(TokenType.IDENTIFIER):
                     token = self._previous()
                     key = ast.LiteralNode(token.value, token.span)
@@ -326,6 +340,7 @@ class Parser:
                 self._skip_newlines()
                 if not self._match(TokenType.COMMA): break
                 self._skip_newlines()
+                if self._check(TokenType.RIGHT_BRACE): break
         self._skip_newlines()
         closing = self._consume(TokenType.RIGHT_BRACE, "Expected '}' after dictionary")
         return ast.DictionaryNode(entries, opening.span.cover(closing.span))

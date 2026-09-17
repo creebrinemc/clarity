@@ -22,6 +22,16 @@ class ClarityFunction:
         return self.name or "anonymous"
 
 
+def _dict_key(key: object) -> tuple[type, object]:
+    if isinstance(key, bool):
+        return (bool, key)
+    if isinstance(key, (int, float)):
+        if isinstance(key, int) or key.is_integer():
+            return (int, int(key))
+        return (float, key)
+    return (type(key), key)
+
+
 class ClarityDict(dict):
     """A dictionary implementation preserving distinct types (e.g. 1 vs True)."""
 
@@ -33,16 +43,16 @@ class ClarityDict(dict):
                 self[k] = v
 
     def __getitem__(self, key: object) -> object:
-        k = (type(key), key)
+        k = _dict_key(key)
         if k not in self._data:
             raise KeyError(key)
         return self._data[k][1]
 
     def __setitem__(self, key: object, value: object) -> None:
-        self._data[(type(key), key)] = (key, value)
+        self._data[_dict_key(key)] = (key, value)
 
     def __contains__(self, key: object) -> bool:
-        return (type(key), key) in self._data
+        return _dict_key(key) in self._data
 
     def __iter__(self):
         return (k for k, v in self._data.values())
@@ -60,7 +70,7 @@ class ClarityDict(dict):
         return (v for k, v in self._data.values())
 
     def get(self, key: object, default: object = None) -> object:
-        k = (type(key), key)
+        k = _dict_key(key)
         if k in self._data:
             return self._data[k][1]
         return default
