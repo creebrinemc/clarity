@@ -1,8 +1,8 @@
-# Clarity 0.3.0 Specification
+# Clarity 0.4.0 Specification
 
 ## Language philosophy
 
-Clarity aims for readable, English-inspired syntax while keeping common code concise. Version 0.3.0 extends Clarity with user-defined functions, return values, lexical closures, first-class functions, and recursion.
+Clarity aims for readable, English-inspired syntax while keeping common code concise. Version 0.4.0 introduces list, dictionary, and string indexing, indexed assignments, English comparison aliases, the `for each` loop form, and `repeat N times` loops.
 
 ## Lexical structure
 
@@ -10,12 +10,20 @@ Source is line-oriented. Spaces, tabs, and comments beginning with `#` are ignor
 
 The frontend preserves source spans (start and end line/column positions) on syntax-tree nodes. Lexer, parser, and runtime errors use these spans to identify the relevant source location.
 
-## Variables
+## Variables and assignments
 
-`set name to expression` replaces the nearest existing binding with that name. If no enclosing environment contains the name, it defines a new variable in the current environment. This makes `set` both the initial declaration and reassignment form.
+`set name to expression` replaces the nearest existing binding with that name. If no enclosing environment contains the name, it defines a new variable in the current environment.
 
 ```clr
 set score to 100
+```
+
+`set target[index] to expression` updates an element in a mutable collection (list or dictionary), including arbitrarily nested targets:
+
+```clr
+set items[0] to "First"
+set user["age"] to 15
+set data["users"][0]["name"] to "Alice"
 ```
 
 The nearest-binding rule remains in effect across block and function boundaries: assigning to an existing outer variable modifies it in the outer scope, whereas new variables created with `set` inside a function or block remain local.
@@ -30,23 +38,90 @@ say "Score: " + score
 
 ## Expressions and operators
 
-Grouping uses parentheses. Precedence from low to high is `or`, `and`, equality (`==`, `!=`), comparison (`>`, `<`, `>=`, `<=`), addition/subtraction, multiplication/division/remainder, then unary `not`, `-`, and `+`. Operators at the same precedence level associate from left to right.
+Grouping uses parentheses. Precedence from low to high is `or`, `and`, equality (`==`, `!=`, `is equal to`, `is not equal to`), comparison (`>`, `<`, `>=`, `<=`, `is greater than`, `is less than`, `is at least`, `is at most`), addition/subtraction, multiplication/division/remainder, unary `not`, `-`, and `+`, then postfix function calls `(...)` and indexing `[...]`.
 
 Arithmetic operators require numbers (booleans are not numbers). `/` and `%` reject division by zero. `+` adds two numbers, or concatenates when either operand is a string after converting the other operand to its Clarity display form. Comparisons support two numbers or two strings only. Equality treats values of different Clarity types as unequal; in particular, `true == 1` is false.
 
 `false` and `nothing` are falsey. All other current values, including `0`, empty strings, empty lists, and empty dictionaries, are truthy. `not` always returns a boolean. `and` and `or` short-circuit and always return a boolean.
 
+### Comparison aliases
+
+Clarity provides English comparison aliases identical in precedence and semantics to their symbolic counterparts:
+
+| English Alias | Symbolic Operator | Description |
+|---|---|---|
+| `is equal to` | `==` | Equality |
+| `is not equal to` | `!=` | Inequality |
+| `is greater than` | `>` | Strictly greater than |
+| `is less than` | `<` | Strictly less than |
+| `is at least` | `>=` | Greater than or equal to |
+| `is at most` | `<=` | Less than or equal to |
+
+```clr
+if age is at least 18 {
+    say "Adult"
+}
+```
+
 ## Data types
 
 Numbers (integers and decimals), strings, booleans (`true`, `false`), null (`nothing` or `null`), lists, dictionaries, and functions are supported. `say` displays `nothing`, `true`, and `false` with these spellings; strings without quotes; lists/dictionaries using Clarity-style literals; and functions as `<function name>`.
 
-## Lists
+## Lists and indexing
 
-List literals use brackets. `push expression to listName` appends an item; `pop from listName` removes the final item. `pop`'s returned value is currently not assignable because assignments are the only supported variable update statement.
+List literals use brackets: `[1, 2, 3]`.
 
-## Dictionaries
+* `push expression to listName` appends an item.
+* `pop from listName` removes the final item.
+* `list[index]` retrieves an element by 0-based integer index.
+* `set list[index] to value` updates an element by 0-based integer index.
 
-Dictionary literals use braces and colons: `{"name": "Creebrine", "age": 14}`. Keys may be numbers, strings, booleans, or `nothing`; list and dictionary keys are rejected. There is no dictionary access or mutation syntax yet.
+Indexes must be integers (floats with fractional parts, booleans, strings, and other types are rejected). Out-of-range indexes produce a runtime error.
+
+```clr
+set items to ["a", "b", "c"]
+say items[0]         # "a"
+set items[1] to "x"  # items becomes ["a", "x", "c"]
+```
+
+## Dictionaries and indexing
+
+Dictionary literals use braces and colons: `{ name: "Creebrine", age: 14 }`.
+
+* Keys in literals can be unquoted identifiers (treated as string keys), numbers, strings, booleans, or `nothing`.
+* `dict[key]` retrieves the value for a key. If the key does not exist, a runtime error is raised.
+* `set dict[key] to value` updates an existing key or adds a new key-value pair.
+* List and dictionary keys are rejected.
+
+```clr
+set user to {
+    name: "Creebrine",
+    age: 14
+}
+
+say user["name"]
+set user["age"] to 15
+```
+
+## String indexing
+
+Strings support 0-based integer indexing: `string[index]` returns a single-character string.
+
+Strings are immutable; attempting indexed assignment on a string (`set string[index] to value`) produces a runtime error. Out-of-range indexes produce a runtime error.
+
+```clr
+set word to "Clarity"
+say word[0]  # "C"
+```
+
+## Nested indexing
+
+Indexing and calls can be chained arbitrarily:
+
+```clr
+say data["users"][0]["scores"][1]
+set data["users"][0]["name"] to "Alicia"
+```
 
 ## Blocks and lexical scope
 
@@ -110,52 +185,19 @@ return expression
 
 ### Scope and closures
 
-Each function call creates a new execution environment whose parent is the function's captured declaration environment (lexical closure).
-
-Nested functions capture their surrounding environment, retaining access to outer variables even after the outer function finishes executing:
-
-```clr
-function make_adder taking x {
-    function add taking y {
-        return x + y
-    }
-    return add
-}
-
-set add5 to make_adder(5)
-say add5(10) # 15
-```
-
-Each closure invocation operates on its captured environment; multiple instances of a closure maintain independent mutable state.
+Each function call creates a new execution environment whose parent is the function's captured declaration environment (lexical closure). Nested functions capture their surrounding environment, retaining access to outer variables even after the outer function finishes executing. Multiple instances of a closure maintain independent mutable state.
 
 ### Recursion
 
-Functions can call themselves recursively, and multiple functions can be mutually recursive:
-
-```clr
-function factorial taking n {
-    if n <= 1 {
-        return 1
-    }
-    return n * factorial(n - 1)
-}
-```
+Functions can call themselves recursively, and multiple functions can be mutually recursive.
 
 ### First-class functions
 
-Functions are first-class values and can be:
-* Assigned to variables (`set f to greet`)
-* Called through variables (`f()`)
-* Passed as arguments to other functions
-* Returned from other functions
-* Stored in lists and dictionaries
+Functions are first-class values and can be assigned to variables, passed as arguments, returned from other functions, and stored in lists and dictionaries.
 
 ### Control-flow boundaries
 
-Function calls establish a strict control-flow boundary:
-* `break` affects only loops within the currently executing function. A `break` inside a function cannot exit or affect an outer caller's loop. Using `break` outside a loop inside a function is a runtime error.
-* `continue` affects only loops within the currently executing function.
-* `return` exits only the nearest enclosing function invocation, unwinding any active loops or blocks inside that function.
+Function calls establish a strict control-flow boundary: `break` and `continue` affect only loops within the currently executing function; `return` exits only the nearest enclosing function invocation.
 
 ## If and else
 
@@ -164,7 +206,7 @@ Function calls establish a strict control-flow boundary:
 ```clr
 if score >= 90 {
     say "Excellent!"
-} else if score >= 70 {
+} else if score is at least 70 {
     say "Good job!"
 } else {
     say "Keep practicing!"
@@ -175,9 +217,15 @@ if score >= 90 {
 
 `while condition { ... }` evaluates its condition before every iteration. Its body is a block and follows normal lexical-scope rules.
 
-## For-in loops
+## For-in and For-each loops
 
-`for name in expression { ... }` iterates over lists and strings. The loop variable is local to the loop and shadows any enclosing variable with the same name; an outer variable of that name is not changed by the iteration binding.
+`for name in expression { ... }` and `for each name in expression { ... }` iterate over lists and strings. The loop variable is local to the loop and shadows any enclosing variable with the same name. Both forms are semantically identical.
+
+```clr
+for each item in inventory {
+    say item
+}
+```
 
 ## Numeric range loops
 
@@ -189,9 +237,23 @@ for number from 10 to 1 step 2 {
 }
 ```
 
+## Repeat loops
+
+`repeat count times { ... }` executes its body block `count` times.
+
+* `count` must evaluate to a number.
+* If `count` is zero or negative, the loop executes zero times.
+* The loop body executes in a block scope and supports `break` and `continue`.
+
+```clr
+repeat 3 times {
+    say "Hello!"
+}
+```
+
 ## Break and continue
 
-`break` exits the nearest enclosing `while`, `for-in`, or numeric range loop within the current function. `continue` skips to the next iteration of that nearest loop. Using either outside a loop is a runtime error.
+`break` exits the nearest enclosing `while`, `for`, `for each`, `repeat`, or numeric range loop within the current function. `continue` skips to the next iteration of that nearest loop. Using either outside a loop is a runtime error.
 
 ## Comments
 
@@ -199,4 +261,4 @@ Use `#` for a line comment.
 
 ## Current limitations
 
-There are no anonymous functions, default parameters, typed parameters, classes, modules, indexing, static analysis, formatter, package manager, or compilation backends. These are planned future capabilities and are not implemented in 0.3.0.
+There are no anonymous functions, default parameters, typed parameters, classes, modules, static analysis, formatter, package manager, or compilation backends. These are planned future capabilities and are not implemented in 0.4.0.

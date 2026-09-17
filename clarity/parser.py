@@ -1,4 +1,4 @@
-"""Recursive-descent parser for Clarity 0.3."""
+"""Recursive-descent parser for Clarity 0.4."""
 
 from . import ast
 from .errors import ParserError
@@ -24,10 +24,14 @@ class Parser:
         if self._match(TokenType.LEFT_BRACE): return self._block()
         if self._match_keyword("set"):
             start = self._previous()
-            name = self._consume(TokenType.IDENTIFIER, "Expected variable name after 'set'")
+            target = self._postfix()
             self._consume_keyword("to", "Expected 'to' after variable name")
             expression = self._expression()
-            return ast.AssignNode(name.value, expression, start.span.cover(expression.span))
+            if isinstance(target, ast.IdentifierNode):
+                return ast.AssignNode(target.name, expression, start.span.cover(expression.span))
+            if isinstance(target, ast.IndexNode):
+                return ast.AssignIndexNode(target.target, target.index, expression, start.span.cover(expression.span))
+            self._error(target, "Expected variable name or index target after 'set'")
         if self._match_keyword("say"):
             start = self._previous()
             expression = self._expression()
@@ -52,6 +56,8 @@ class Parser:
             return ast.WhileNode(condition, body, start.span.cover(body.span))
         if self._match_keyword("for"):
             return self._for_statement(self._previous())
+        if self._match_keyword("repeat"):
+            return self._repeat_statement(self._previous())
         if self._match_keyword("break"):
             return ast.BreakNode(self._previous().span)
         if self._match_keyword("continue"):
@@ -71,6 +77,12 @@ class Parser:
         if not isinstance(expression, ast.CallNode):
             self._error(start, "Expected a statement")
         return ast.ExpressionStatementNode(expression, expression.span)
+
+    def _repeat_statement(self, start: Token) -> ast.RepeatNode:
+        count = self._expression()
+        self._consume_keyword("times", "Expected 'times' after repeat count")
+        body = self._consume_block("Expected '{' after repeat statement")
+        return ast.RepeatNode(count, body, start.span.cover(body.span))
 
     def _function_declaration(self, start: Token) -> ast.FunctionDeclarationNode:
         name = self._consume(TokenType.IDENTIFIER, "Expected function name after 'function'")
@@ -113,6 +125,7 @@ class Parser:
         return ast.IfNode(condition, then_block, else_branch, start.span.cover(end_span))
 
     def _for_statement(self, start: Token) -> ast.StatementNode:
+        self._match_keyword("each")
         variable = self._consume(TokenType.IDENTIFIER, "Expected loop variable after 'for'")
         if self._match_keyword("in"):
             iterable = self._expression()
@@ -165,8 +178,66 @@ class Parser:
     def _expression(self): return self._logical_or()
     def _logical_or(self): return self._binary(self._logical_and, lambda: self._match_keyword("or"))
     def _logical_and(self): return self._binary(self._equality, lambda: self._match_keyword("and"))
-    def _equality(self): return self._binary(self._comparison, lambda: self._match_operator("==", "!="))
-    def _comparison(self): return self._binary(self._term, lambda: self._match_operator(">", "<", ">=", "<="))
+
+    def _equality(self):
+        node = self._comparison()
+        while True:
+            op = self._match_equality_op()
+            if op is None: break
+            right = self._comparison()
+            node = ast.BinaryOpNode(node, op, right, node.span.cover(right.span))
+        return node
+
+    def _comparison(self):
+        node = self._term()
+        while True:
+            op = self._match_comparison_op()
+            if op is None: break
+            right = self._term()
+            node = ast.BinaryOpNode(node, op, right, node.span.cover(right.span))
+        return node
+
+    def _match_equality_op(self) -> str | None:
+        if self._match_operator("==", "!="):
+            return self._previous().value
+        if self._check_keyword("is"):
+            if self._check_next_keyword(1, "equal"):
+                self._advance()  # is
+                self._advance()  # equal
+                self._consume_keyword("to", "Expected 'to' after 'is equal'")
+                return "=="
+            if self._check_next_keyword(1, "not") and self._check_next_keyword(2, "equal"):
+                self._advance()  # is
+                self._advance()  # not
+                self._advance()  # equal
+                self._consume_keyword("to", "Expected 'to' after 'is not equal'")
+                return "!="
+        return None
+
+    def _match_comparison_op(self) -> str | None:
+        if self._match_operator(">", "<", ">=", "<="):
+            return self._previous().value
+        if self._check_keyword("is"):
+            if self._check_next_keyword(1, "greater"):
+                self._advance()  # is
+                self._advance()  # greater
+                self._consume_keyword("than", "Expected 'than' after 'is greater'")
+                return ">"
+            if self._check_next_keyword(1, "less"):
+                self._advance()  # is
+                self._advance()  # less
+                self._consume_keyword("than", "Expected 'than' after 'is less'")
+                return "<"
+            if self._check_next_keyword(1, "at"):
+                self._advance()  # is
+                self._advance()  # at
+                if self._match_keyword("least"):
+                    return ">="
+                if self._match_keyword("most"):
+                    return "<="
+                self._error(self._peek(), "Expected 'least' or 'most' after 'is at'")
+        return None
+
     def _term(self): return self._binary(self._factor, lambda: self._match_operator("+", "-"))
     def _factor(self): return self._binary(self._unary, lambda: self._match_operator("*", "/", "%"))
 
@@ -183,18 +254,25 @@ class Parser:
             operator = self._previous()
             operand = self._unary()
             return ast.UnaryOpNode(operator.value, operand, operator.span.cover(operand.span))
-        return self._call()
+        return self._postfix()
 
-    def _call(self):
+    def _postfix(self):
         expression = self._primary()
-        while self._match(TokenType.LEFT_PAREN):
-            arguments = []
-            if not self._check(TokenType.RIGHT_PAREN):
-                while True:
-                    arguments.append(self._expression())
-                    if not self._match(TokenType.COMMA): break
-            closing = self._consume(TokenType.RIGHT_PAREN, "Expected ')' after function arguments")
-            expression = ast.CallNode(expression, arguments, expression.span.cover(closing.span))
+        while True:
+            if self._match(TokenType.LEFT_PAREN):
+                arguments = []
+                if not self._check(TokenType.RIGHT_PAREN):
+                    while True:
+                        arguments.append(self._expression())
+                        if not self._match(TokenType.COMMA): break
+                closing = self._consume(TokenType.RIGHT_PAREN, "Expected ')' after function arguments")
+                expression = ast.CallNode(expression, arguments, expression.span.cover(closing.span))
+            elif self._match(TokenType.LEFT_BRACKET):
+                index = self._expression()
+                closing = self._consume(TokenType.RIGHT_BRACKET, "Expected ']' after index")
+                expression = ast.IndexNode(expression, index, expression.span.cover(closing.span))
+            else:
+                break
         return expression
 
     def _primary(self):
@@ -217,21 +295,38 @@ class Parser:
     def _list(self):
         opening = self._previous()
         elements = []
+        self._skip_newlines()
         if not self._check(TokenType.RIGHT_BRACKET):
             while True:
+                self._skip_newlines()
                 elements.append(self._expression())
+                self._skip_newlines()
                 if not self._match(TokenType.COMMA): break
+                self._skip_newlines()
+        self._skip_newlines()
         closing = self._consume(TokenType.RIGHT_BRACKET, "Expected ']' after list")
         return ast.ListNode(elements, opening.span.cover(closing.span))
 
     def _dictionary(self):
         opening = self._previous()
         entries = []
+        self._skip_newlines()
         if not self._check(TokenType.RIGHT_BRACE):
             while True:
-                key = self._expression(); self._consume(TokenType.COLON, "Expected ':' after dictionary key")
-                entries.append((key, self._expression()))
+                self._skip_newlines()
+                if self._match(TokenType.IDENTIFIER):
+                    token = self._previous()
+                    key = ast.LiteralNode(token.value, token.span)
+                else:
+                    key = self._expression()
+                self._consume(TokenType.COLON, "Expected ':' after dictionary key")
+                self._skip_newlines()
+                value = self._expression()
+                entries.append((key, value))
+                self._skip_newlines()
                 if not self._match(TokenType.COMMA): break
+                self._skip_newlines()
+        self._skip_newlines()
         closing = self._consume(TokenType.RIGHT_BRACE, "Expected '}' after dictionary")
         return ast.DictionaryNode(entries, opening.span.cover(closing.span))
 
@@ -242,6 +337,14 @@ class Parser:
     def _match_operator(self, *values): return any(self._match_value(TokenType.OPERATOR, value) for value in values)
     def _match_value(self, kind, value):
         if self._check(kind) and self._peek().value == value: self._advance(); return True
+        return False
+    def _check_keyword(self, value: str) -> bool:
+        return self._check(TokenType.KEYWORD) and self._peek().value == value
+    def _check_next_keyword(self, offset: int, value: str) -> bool:
+        idx = self.current + offset
+        if idx < len(self.tokens):
+            token = self.tokens[idx]
+            return token.type == TokenType.KEYWORD and token.value == value
         return False
     def _consume(self, kind, message):
         if self._check(kind): return self._advance()

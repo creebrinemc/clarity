@@ -147,3 +147,26 @@ class CallNode(ExpressionNode):
 class ExpressionStatementNode(StatementNode):
     expression: ExpressionNode
     span: SourceSpan
+
+
+@dataclass(slots=True)
+class IndexNode(ExpressionNode):
+    target: ExpressionNode
+    index: ExpressionNode
+    span: SourceSpan
+
+
+@dataclass(slots=True)
+class AssignIndexNode(StatementNode):
+    target: ExpressionNode
+    index: ExpressionNode
+    expression: ExpressionNode
+    span: SourceSpan
+
+
+@dataclass(slots=True)
+class RepeatNode(StatementNode):
+    count: ExpressionNode
+    body: BlockNode
+    span: SourceSpan
+

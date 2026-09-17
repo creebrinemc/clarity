@@ -1,0 +1,49 @@
+# Clarity 0.4 data access and readability example
+
+# 1. Lists and Indexing
+set items to ["Sword", "Shield", "Potion"]
+say "First item: " + items[0]
+
+set items[1] to "Magic Shield"
+say "Updated inventory: " + items
+
+# 2. Dictionaries and Indexing
+set user to {
+    name: "Creebrine",
+    age: 14,
+    scores: [95, 100]
+}
+
+say "User: " + user["name"]
+set user["age"] to 15
+say "New age: " + user["age"]
+
+# 3. Nested Indexing
+say "Top score: " + user["scores"][1]
+set user["scores"][0] to 98
+say "Updated scores: " + user["scores"]
+
+# 4. String Indexing
+set language to "Clarity"
+say "First letter: " + language[0]
+
+# 5. English Comparison Aliases
+if user["age"] is at least 13 {
+    say "Eligible for account"
+}
+
+if user["scores"][0] is greater than 90 {
+    say "Honor roll achieved"
+}
+
+# 6. For-each loops
+say "--- Inventory List ---"
+for each item in items {
+    say "- " + item
+}
+
+# 7. Repeat loops
+say "--- Victory Fanfare ---"
+repeat 3 times {
+    say "Hooray!"
+}

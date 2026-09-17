@@ -6,7 +6,7 @@ from . import ast
 from .environment import Environment
 from .errors import RuntimeError
 from . import semantics
-from .runtime import ClarityFunction
+from .runtime import ClarityDict, ClarityFunction
 
 CLARITY_BUILTINS: dict[str, object] = {}
 
@@ -67,6 +67,13 @@ class Evaluator:
         self.environment.assign(node.name, value)
         return value
 
+    def visit_AssignIndexNode(self, node: ast.AssignIndexNode):
+        target = self.evaluate(node.target)
+        index = self.evaluate(node.index)
+        value = self.evaluate(node.expression)
+        semantics.set_index(target, index, value)
+        return value
+
     def visit_PrintNode(self, node: ast.PrintNode):
         value = self.evaluate(node.expression)
         self.output(semantics.stringify(value))
@@ -122,6 +129,22 @@ class Evaluator:
             raise RuntimeError("Range step must not be zero")
         increment = abs(step) if start <= end else -abs(step)
         self._execute_loop_values(node.variable, self._range_values(start, end, increment), node.body)
+
+    def visit_RepeatNode(self, node: ast.RepeatNode):
+        raw_count = self.evaluate(node.count)
+        count_num = semantics.require_number(raw_count, "Repeat count")
+        iterations = int(count_num) if count_num > 0 else 0
+        self.loop_depth += 1
+        try:
+            for _ in range(iterations):
+                try:
+                    self.execute_block(node.body.statements)
+                except _ContinueSignal:
+                    continue
+                except _BreakSignal:
+                    break
+        finally:
+            self.loop_depth -= 1
 
     def visit_BreakNode(self, node: ast.BreakNode):
         if self.loop_depth == 0:
@@ -221,10 +244,16 @@ class Evaluator:
     def visit_IdentifierNode(self, node: ast.IdentifierNode): return self.environment.get(node.name)
     def visit_ListNode(self, node: ast.ListNode): return [self.evaluate(item) for item in node.elements]
     def visit_DictionaryNode(self, node: ast.DictionaryNode):
-        return {
-            semantics.validate_dictionary_key(self.evaluate(key)): self.evaluate(value)
-            for key, value in node.entries
-        }
+        d = ClarityDict()
+        for key_node, value_node in node.entries:
+            key = semantics.validate_dictionary_key(self.evaluate(key_node))
+            d[key] = self.evaluate(value_node)
+        return d
+
+    def visit_IndexNode(self, node: ast.IndexNode):
+        target = self.evaluate(node.target)
+        index = self.evaluate(node.index)
+        return semantics.get_index(target, index)
 
     def visit_UnaryOpNode(self, node: ast.UnaryOpNode):
         value = self.evaluate(node.operand)

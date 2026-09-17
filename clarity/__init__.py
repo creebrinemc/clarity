@@ -1,3 +1,3 @@
-"""Clarity 0.3.0 language implementation."""
+"""Clarity 0.4.0 language implementation."""
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"

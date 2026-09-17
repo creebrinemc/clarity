@@ -8,6 +8,8 @@ KEYWORDS = {
     "set", "to", "say", "push", "pop", "from", "and", "or", "not",
     "if", "else", "while", "for", "in", "step", "break", "continue",
     "function", "taking", "return",
+    "each", "repeat", "times", "is", "equal", "greater", "less", "than",
+    "at", "least", "most",
 }
 BOOLEAN_WORDS = {"true": True, "false": False}
 NULL_WORDS = {"nothing", "null"}
