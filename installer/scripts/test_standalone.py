@@ -45,7 +45,7 @@ def run_binary_test(binary_path: Path) -> None:
     version_output = (res.stdout or res.stderr).strip()
     if expected_version not in version_output:
         raise AssertionError(f"Expected '{expected_version}' in output, got: '{version_output}'")
-    print(f"        ✓ Version matched: {version_output}")
+    print(f"        [OK] Version matched: {version_output}")
 
     # Test 2: Execute examples/hello.clr
     hello_file = REPO_ROOT / "examples" / "hello.clr"
@@ -56,7 +56,7 @@ def run_binary_test(binary_path: Path) -> None:
             raise AssertionError(f"hello.clr execution failed with code {res.returncode}: {res.stderr}")
         if "Hello, Clarity!" not in res.stdout:
             raise AssertionError(f"Expected 'Hello, Clarity!' in stdout, got: '{res.stdout}'")
-        print("        ✓ hello.clr executed successfully")
+        print("        [OK] hello.clr executed successfully")
 
     # Test 3: Execute standard library script
     stdlib_file = REPO_ROOT / "examples" / "standard_library.clr"
@@ -67,14 +67,14 @@ def run_binary_test(binary_path: Path) -> None:
             raise AssertionError(f"standard_library.clr execution failed: {res.stderr}")
         if "WELCOME TO CLARITY" not in res.stdout:
             raise AssertionError(f"Expected standard library output missing in: '{res.stdout}'")
-        print("        ✓ standard_library.clr executed successfully")
+        print("        [OK] standard_library.clr executed successfully")
 
     # Test 4: Missing argument / help output
     print("  [4/8] Testing no-argument usage help...")
     res = subprocess.run([str(binary_path)], capture_output=True, text=True)
     if res.returncode != 2:
         raise AssertionError(f"Expected exit code 2 on missing args, got {res.returncode}")
-    print("        ✓ Correct exit code 2 and help printed")
+    print("        [OK] Correct exit code 2 and help printed")
 
     # Test 5: Error handling on syntax errors
     print("  [5/8] Testing error output on invalid Clarity syntax...")
@@ -89,7 +89,7 @@ def run_binary_test(binary_path: Path) -> None:
         output = res.stdout + res.stderr
         if "Clarity " not in output or "Error" not in output:
             raise AssertionError(f"Expected formatted Clarity diagnostic error, got: '{output}'")
-        print("        ✓ Clarity diagnostic error handled cleanly with exit code 1")
+        print("        [OK] Clarity diagnostic error handled cleanly with exit code 1")
     finally:
         if temp_file_path.exists():
             temp_file_path.unlink()
@@ -102,7 +102,7 @@ def run_binary_test(binary_path: Path) -> None:
         raise AssertionError(f"Expected exit code 1 on nonexistent file, got {res.returncode}")
     if "Could not read" not in (res.stdout + res.stderr):
         raise AssertionError(f"Expected 'Could not read' error, got: '{res.stdout + res.stderr}'")
-    print("        ✓ Nonexistent source file handled cleanly with exit code 1")
+    print("        [OK] Nonexistent source file handled cleanly with exit code 1")
 
     # Test 7: Runtime error handling (Standard library runtime exception)
     print("  [7/8] Testing runtime error formatting from standard library...")
@@ -116,7 +116,7 @@ def run_binary_test(binary_path: Path) -> None:
             raise AssertionError(f"Expected exit code 1 on runtime error, got {res.returncode}")
         if "Clarity Runtime Error" not in (res.stdout + res.stderr):
             raise AssertionError(f"Expected 'Clarity Runtime Error', got: '{res.stdout + res.stderr}'")
-        print("        ✓ Clarity Runtime Error handled cleanly with exit code 1")
+        print("        [OK] Clarity Runtime Error handled cleanly with exit code 1")
     finally:
         if temp_runtime_file.exists():
             temp_runtime_file.unlink()
@@ -147,9 +147,9 @@ def run_binary_test(binary_path: Path) -> None:
             raise AssertionError(f"Isolated cwd execution failed: {res.stderr}")
         if "Isolated execution: OK" not in res.stdout:
             raise AssertionError(f"Expected 'Isolated execution: OK', got: '{res.stdout}'")
-        print("        ✓ Arbitrary directory execution with sanitized environment passed")
+        print("        [OK] Arbitrary directory execution with sanitized environment passed")
 
-    print(f"\n[✓] All 8 standalone binary verification tests passed for Clarity {clarity.__version__}!")
+    print(f"\n[OK] All 8 standalone binary verification tests passed for Clarity {clarity.__version__}!")
 
 
 def main() -> int:

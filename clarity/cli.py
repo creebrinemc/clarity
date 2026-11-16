@@ -179,7 +179,19 @@ def cmd_test(args: argparse.Namespace) -> int:
         return 1
 
 
+def _configure_stdio() -> None:
+    """Ensure UTF-8 console output on Windows without breaking StringIO/pytest."""
+    for stream in (sys.stdout, sys.stderr):
+        encoding = getattr(stream, "encoding", None) or ""
+        if hasattr(stream, "reconfigure") and encoding.lower() not in ("utf-8", "utf8"):
+            try:
+                stream.reconfigure(encoding="utf-8", errors="replace")
+            except Exception:
+                pass
+
+
 def main(argv: list[str] | None = None) -> int:
+    _configure_stdio()
     args_list = sys.argv[1:] if argv is None else argv
 
     # Direct script execution check (backward compatibility)

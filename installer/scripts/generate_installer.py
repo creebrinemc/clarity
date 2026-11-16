@@ -46,7 +46,7 @@ def verify_version_alignment() -> str:
                 f"Version mismatch: clarity/__init__.py ({code_version}) vs clarity_setup.iss ({match.group(1)})"
             )
 
-    print(f"[✓] Version alignment confirmed: v{code_version}")
+    print(f"[OK] Version alignment confirmed: v{code_version}")
     return code_version
 
 
@@ -63,7 +63,7 @@ def validate_installer_prerequisites() -> None:
         print(f"[!] Warning: Standalone distribution directory {dist_clarity} does not exist yet.")
         print("    Run `python installer/scripts/build_standalone.py` to build the binary bundle.")
     else:
-        print(f"[✓] Standalone distribution directory present at: {dist_clarity}")
+        print(f"[OK] Standalone distribution directory present at: {dist_clarity}")
 
     license_file = REPO_ROOT / "LICENSE"
     if not license_file.exists():
@@ -73,7 +73,7 @@ def validate_installer_prerequisites() -> None:
     if not examples_dir.exists():
         raise FileNotFoundError(f"Examples directory missing at {examples_dir}")
 
-    print("[✓] All installer prerequisite files verified successfully.")
+    print("[OK] All installer prerequisite files verified successfully.")
 
 
 def find_inno_compiler() -> str | None:
@@ -116,7 +116,7 @@ def compile_installer() -> None:
     if res.returncode != 0:
         raise RuntimeError(f"Inno Setup compilation failed with code {res.returncode}")
 
-    print(f"[✓] Windows installer successfully compiled into: {output_dir}")
+    print(f"[OK] Windows installer successfully compiled into: {output_dir}")
 
 
 def main() -> int:

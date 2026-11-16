@@ -67,7 +67,7 @@ def run_pyinstaller() -> Path:
     if sys.platform != "win32":
         dist_binary.chmod(0o755)
 
-    print(f"[✓] Standalone binary successfully built at: {dist_binary}")
+    print(f"[OK] Standalone binary successfully built at: {dist_binary}")
     return dist_binary
 
 
@@ -80,7 +80,7 @@ def main() -> int:
         if args.clean:
             clean_build_artifacts()
         binary_path = run_pyinstaller()
-        print(f"\n[✓] Build complete: {binary_path}")
+        print(f"\n[OK] Build complete: {binary_path}")
         return 0
     except Exception as exc:
         print(f"[!] Build error: {exc}", file=sys.stderr)
