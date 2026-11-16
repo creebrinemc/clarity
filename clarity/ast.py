@@ -79,7 +79,7 @@ class BlockNode(StatementNode):
 class IfNode(StatementNode):
     condition: ExpressionNode
     then_block: BlockNode
-    else_branch: BlockNode | "IfNode" | None
+    else_branch: BlockNode | IfNode | None
     span: SourceSpan
 
 

@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from pathlib import Path
 
 from . import ast
