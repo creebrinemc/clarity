@@ -1,5 +1,7 @@
 """Syntax tree nodes independent from parsing and evaluation."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 from .source import SourceSpan
