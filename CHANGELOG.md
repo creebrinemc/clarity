@@ -2,7 +2,9 @@
 
 All notable changes to the Clarity programming language are documented in this file.
 
-## [0.6.0] — Pending Release
+## [0.6.0] — 2026-11-17
+
+> **Note:** Implementation of `0.6.0` was completed roughly six weeks before public publication; the release itself was delayed by an administrative oversight.
 
 ### Added
 - **Module & Import System (`clarity/modules.py`)**:
