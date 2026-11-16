@@ -1,5 +1,6 @@
 """Comprehensive tests for Clarity 0.5 standard library."""
 
+import re
 import pytest
 from pathlib import Path
 
@@ -313,7 +314,7 @@ def test_choose_empty():
 # ==========================================
 
 def test_files_write_read_exists(tmp_path: Path):
-    file_path = str(tmp_path / "test.txt")
+    file_path = (tmp_path / "test.txt").as_posix()
     code = f"""
     say file_exists("{file_path}")
     write_file("{file_path}", "Hello Clarity Files!")
@@ -324,20 +325,20 @@ def test_files_write_read_exists(tmp_path: Path):
 
 
 def test_read_nonexistent_file(tmp_path: Path):
-    nonexistent = str(tmp_path / "nonexistent.txt")
-    with pytest.raises(RuntimeError, match=f"File not found: '{nonexistent}'"):
+    nonexistent = (tmp_path / "nonexistent.txt").as_posix()
+    with pytest.raises(RuntimeError, match=re.escape(f"File not found: '{nonexistent}'")):
         execute(f'read_file("{nonexistent}")')
 
 
 def test_read_directory(tmp_path: Path):
-    dir_path = str(tmp_path)
-    with pytest.raises(RuntimeError, match=f"Path is a directory: '{dir_path}'"):
+    dir_path = tmp_path.as_posix()
+    with pytest.raises(RuntimeError, match=re.escape(f"Path is a directory: '{dir_path}'")):
         execute(f'read_file("{dir_path}")')
 
 
 def test_write_file_directory_error(tmp_path: Path):
-    dir_path = str(tmp_path)
-    with pytest.raises(RuntimeError, match=f"Cannot write to file '{dir_path}': path is a directory"):
+    dir_path = tmp_path.as_posix()
+    with pytest.raises(RuntimeError, match=re.escape(f"Cannot write to file '{dir_path}': path is a directory")):
         execute(f'write_file("{dir_path}", "data")')
 
 
@@ -428,7 +429,7 @@ def test_power_negative_base_integer_exponent():
 
 
 def test_files_unicode_and_overwrite(tmp_path: Path):
-    file_path = str(tmp_path / "unicode.txt")
+    file_path = (tmp_path / "unicode.txt").as_posix()
     code = f"""
     write_file("{file_path}", "🌟 Hello Clarity 0.5 — Türkçe: Şeker 🍬")
     say read_file("{file_path}")
