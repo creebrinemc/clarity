@@ -10,6 +10,7 @@ KEYWORDS = {
     "function", "taking", "return",
     "each", "repeat", "times", "is", "equal", "greater", "less", "than",
     "at", "least", "most",
+    "import", "as",
 }
 BOOLEAN_WORDS = {"true": True, "false": False}
 NULL_WORDS = {"nothing", "null"}
@@ -51,7 +52,8 @@ class Lexer:
         singles = {"(": TokenType.LEFT_PAREN, ")": TokenType.RIGHT_PAREN,
                    "[": TokenType.LEFT_BRACKET, "]": TokenType.RIGHT_BRACKET,
                    "{": TokenType.LEFT_BRACE, "}": TokenType.RIGHT_BRACE,
-                   ",": TokenType.COMMA, ":": TokenType.COLON}
+                   ",": TokenType.COMMA, ":": TokenType.COLON,
+                   ".": TokenType.DOT}
         if char in singles:
             return self._completed_token(singles[char], char, line, column)
         if char in "+-*/%":

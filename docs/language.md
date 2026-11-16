@@ -1,6 +1,6 @@
 # Clarity Language Guide
 
-Clarity is designed to read like clear, structured English while maintaining strict computational predictability. This guide details the core syntax and runtime behaviors of Clarity 0.5.0.
+Clarity is designed to read like clear, structured English while maintaining strict computational predictability. This guide details the core syntax and runtime behaviors of Clarity 0.6.0.
 
 ---
 
@@ -206,7 +206,11 @@ set user to {
     level: 42
 }
 
+# Index access and dot property access
 say user["name"]     # "Creebrine"
+say user.name        # "Creebrine" (dot access)
+
+# Indexed assignment
 set user["level"] to 43
 ```
 
@@ -217,3 +221,57 @@ Strings support read-only 0-based indexing:
 set word to "Clarity"
 say word[0]  # "C"
 ```
+
+---
+
+## 7. Modules & Imports
+
+Clarity 0.6 introduces modular file organization with explicit quoted paths:
+
+### Named Imports
+```clr
+from "utils/formatting" import format_name, capitalize
+from "math_helpers" import square and cube
+
+say format_name("alice")
+```
+
+### Whole-Module Namespace Imports
+```clr
+import "utils/formatting" as fmt
+
+say fmt.format_name("bob")
+```
+
+### Encapsulation
+Top-level declarations are publicly exported by default. Identifiers beginning with an underscore (`_helper`) are private to the declaring module.
+
+### Resolution & Loading
+* Paths starting with `./` or `../` are resolved relative to the importing file.
+* Other paths are searched in the project (`src/` first, then the project root), then next to the importing file, then in the current directory.
+* `"utils"` can refer to `utils.clr`, `utils/main.clr`, or `utils/mod.clr`.
+* Each module runs once per program; later imports reuse it. Circular imports are reported as errors.
+
+Dot access on dictionaries (`user.name`) is read-only; use `set user["name"] to ...` to modify values. See [SPEC.md](../SPEC.md#modules-and-imports) for the full rules.
+
+---
+
+## 8. Testing & Assertions
+
+Clarity includes native assertion built-ins for writing tests:
+
+```clr
+function test_addition {
+    assert_equal(2 + 2, 4, "2 + 2 must equal 4")
+}
+
+function test_truthy {
+    assert(true, "Condition must be truthy")
+}
+```
+
+Run test suites automatically via:
+```bash
+clarity test
+```
+

@@ -46,8 +46,8 @@ export const NotFound: React.FC = () => {
       </span>
 
       <h1
+        className="page-title"
         style={{
-          fontSize: '2.4rem',
           margin: '12px 0 16px',
         }}
       >

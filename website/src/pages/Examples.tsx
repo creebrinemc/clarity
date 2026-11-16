@@ -192,19 +192,19 @@ export const Examples: React.FC = () => {
     filter === 'all' ? EXAMPLES : EXAMPLES.filter((ex) => ex.category === filter);
 
   return (
-    <div className="container" style={{ padding: '60px 24px 100px' }}>
+    <div className="container" style={{ padding: '50px 24px 80px' }}>
       <SEO
         title="Clarity Examples"
-        description="Explore real runnable Clarity 0.5.0 programs showcasing control flow, lexical closures, indexed data structures, and the standard library."
+        description="Explore real runnable Clarity 0.6.0 programs showcasing control flow, lexical closures, indexed data structures, and the standard library."
         canonicalPath="/examples"
       />
-      <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto 48px' }}>
+      <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto 40px' }}>
         <span className="badge" style={{ marginBottom: '12px' }}>
           Code Gallery
         </span>
-        <h1 style={{ fontSize: '2.8rem', marginBottom: '16px' }}>Examples Showcase</h1>
+        <h1 className="page-title">Examples Showcase</h1>
         <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)' }}>
-          Explore real runnable Clarity 0.5.0 programs from the official repository.
+          Explore real runnable Clarity 0.6.0 programs from the official repository.
         </p>
       </div>
 

@@ -1,19 +1,25 @@
 # Getting Started with Clarity
 
-Welcome to Clarity! This guide walks you through setting up the Clarity development environment and running your first `.clr` program.
+Welcome to Clarity! This guide walks you through setting up the Clarity development environment, creating projects, and running your `.clr` programs.
 
 ---
 
 ## 1. Prerequisites
 
-Clarity 0.5.0 is currently distributed as a Python-based implementation. You will need:
+Clarity 0.6.0 is available as a native Windows installer (no Python required) and from source on any platform. To run from source you will need:
 * **Python**: 3.11 or newer
 * **pip**: Standard Python package manager
 * **git**: Optional, for cloning the repository
 
 ---
 
-## 2. Installation & Setup
+## 2. Installation Methods
+
+### Option A: Native Windows Installer (Recommended for Windows)
+Download `Clarity-0.6.0-Windows-x64-Setup.exe` from GitHub Releases or compile it locally via `installer/scripts/generate_installer.py`.
+The installer automatically bundles the standalone runtime, adds Clarity to your system `PATH`, and registers `.clr` file associations.
+
+### Option B: Quick Setup from Source (Cross-Platform)
 
 Clone the repository and install Clarity in editable mode with development dependencies:
 
@@ -33,18 +39,36 @@ Verify your installation:
 
 ```bash
 clarity --version
-# Output: Clarity 0.5.0
-```
-
-You can also invoke the CLI directly using the Python module syntax:
-
-```bash
-python -m clarity.cli --version
+# Output: Clarity 0.6.0
 ```
 
 ---
 
-## 3. Your First Program
+## 3. Creating a Clarity Project
+
+Clarity 0.6 introduces built-in project scaffolding and multi-file workflows:
+
+```bash
+clarity new my-app
+cd my-app
+clarity run
+clarity test
+```
+
+A canonical Clarity project contains:
+```text
+my-app/
+├── conf.clr           # Static project manifest
+├── README.md          # Project documentation
+├── src/
+│   └── main.clr       # Application entry point
+└── tests/
+    └── main_test.clr  # Native test suite
+```
+
+---
+
+## 4. Your First Program
 
 Create a file named `welcome.clr`:
 
@@ -78,7 +102,7 @@ Final score: 180.0
 
 ---
 
-## 4. Basic Syntax Cheatsheet
+## 5. Basic Syntax Cheatsheet
 
 ### Variables
 ```clr
@@ -145,7 +169,7 @@ say random(1, 100)            # Random integer 1..100
 
 ---
 
-## 5. Next Steps
+## 6. Next Steps
 
 * Read the [Language Guide](language.md) for an in-depth tour of syntax and features.
 * Explore the [Standard Library Reference](standard-library.md) for available built-in functions.

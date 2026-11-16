@@ -66,6 +66,31 @@ class Parser:
             return self._function_declaration(self._previous())
         if self._match_keyword("return"):
             return self._return_statement(self._previous())
+        if self._match_keyword("import"):
+            start = self._previous()
+            module_token = self._consume(TokenType.STRING, "Expected module path string after 'import'")
+            self._consume_keyword("as", "Whole-module import requires an alias with 'as' (e.g. import \"utils\" as utils)")
+            alias_token = self._consume(TokenType.IDENTIFIER, "Expected alias identifier after 'as'")
+            return ast.ImportModuleNode(module_token.value, alias_token.value, start.span.cover(alias_token.span))
+        if self._match_keyword("from"):
+            start = self._previous()
+            module_token = self._consume(TokenType.STRING, "Expected module path string after 'from'")
+            self._consume_keyword("import", "Expected 'import' after module path in 'from ... import ...'")
+            items: list[ast.ImportItem] = []
+            while True:
+                name_token = self._consume(TokenType.IDENTIFIER, "Expected identifier to import")
+                alias = None
+                item_end = name_token.span
+                if self._match_keyword("as"):
+                    alias_token = self._consume(TokenType.IDENTIFIER, "Expected alias identifier after 'as'")
+                    alias = alias_token.value
+                    item_end = alias_token.span
+                items.append(ast.ImportItem(name_token.value, alias, name_token.span.cover(item_end)))
+                if self._match(TokenType.COMMA) or self._match_keyword("and"):
+                    self._skip_newlines()
+                    continue
+                break
+            return ast.FromImportNode(module_token.value, items, start.span.cover(items[-1].span))
         start = self._peek()
         start_index = self.current
         try:
@@ -280,6 +305,10 @@ class Parser:
                 self._skip_newlines()
                 closing = self._consume(TokenType.RIGHT_BRACKET, "Expected ']' after index")
                 expression = ast.IndexNode(expression, index, expression.span.cover(closing.span))
+            elif self._match(TokenType.DOT):
+                self._skip_newlines()
+                member = self._consume(TokenType.IDENTIFIER, "Expected property or member name after '.'")
+                expression = ast.MemberAccessNode(expression, member.value, expression.span.cover(member.span))
             else:
                 break
         return expression

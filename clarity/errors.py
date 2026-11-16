@@ -40,3 +40,16 @@ class ParserError(ClarityError):
 
 class RuntimeError(ClarityError):
     category = "Runtime"
+
+
+class ModuleError(ClarityError):
+    category = "Module"
+
+
+class CircularImportError(ClarityError):
+    category = "Circular Import"
+
+
+class ProjectError(ClarityError):
+    category = "Project"
+

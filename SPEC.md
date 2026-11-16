@@ -1,14 +1,14 @@
-# Clarity 0.5.0 Specification
+# Clarity 0.6.0 Specification
 
 ## Language philosophy
 
-Clarity aims for readable, English-inspired syntax while keeping common code concise. Version 0.5.0 introduces a globally available standard library covering text manipulation, collection utilities, math functions, random selection, and file operations.
+Clarity aims for readable, English-inspired syntax while keeping common code concise. Version 0.5.0 introduced a globally available standard library covering text manipulation, collection utilities, math functions, random selection, and file operations. Version 0.6.0 adds modules and imports, dot member access, static project manifests (`conf.clr`), a project-aware CLI (`clarity run`, `clarity new`, `clarity test`), and assertion built-ins for native tests.
 
 ## Standard Library
 
 Clarity uses a hybrid standard-library model:
 - Common/core functionality is globally available without imports (e.g. `length`, `sqrt`, `uppercase`, `random`).
-- Specialized future libraries will use modules and namespaces (e.g. `import json; json.parse(...)`). Imports and namespaces are intentionally not part of 0.5.0 and will arrive in a future milestone.
+- User code is organized into modules with `import` / `from ... import` (see [Modules and imports](#modules-and-imports)). Standard-library functions remain global in 0.6.0; namespaced standard-library modules are a future capability.
 
 Standard library functions are first-class callable values, printable as `<function name>`, assignable to variables, and passable to higher-order functions. Standard library errors produce proper Clarity runtime errors with source spans and never leak raw host exceptions.
 
@@ -96,11 +96,23 @@ if file_exists("data.txt") {
 
 Filesystem operations are abstracted to allow pluggable backends and sandboxed implementations for browser playgrounds.
 
+### Testing and Assertion Functions
+
+* `assert(condition [, message])`: Does nothing if `condition` is truthy. Otherwise raises a Clarity runtime error `Assertion failed: <message>` (default message: `Assertion failed`).
+* `assert_equal(actual, expected [, message])`: Does nothing if `actual` and `expected` are equal under Clarity equality (so `1` and `true` are not equal). Otherwise raises a Clarity runtime error showing the optional message and the expected and actual values.
+
+```clr
+assert(10 > 5, "Ten should be greater than five")
+assert_equal(2 * 3, 6, "2 times 3 is 6")
+```
+
 ---
 
 ## Lexical structure
 
-Source is line-oriented. Spaces, tabs, and comments beginning with `#` are ignored. Strings use double quotes and support `\n`, `\t`, `\"`, and `\\` escapes. Identifiers begin with a letter or underscore and may include digits and underscores.
+Source is line-oriented. Spaces, tabs, and comments beginning with `#` are ignored. Strings use double quotes and support `\n`, `\t`, `\"`, and `\\` escapes. Identifiers begin with a letter or underscore and may include digits and underscores. The period `.` is a token used for member access; inside numeric literals such as `3.14` it remains part of the number.
+
+Reserved keywords: `set`, `to`, `say`, `push`, `pop`, `from`, `and`, `or`, `not`, `if`, `else`, `while`, `for`, `in`, `step`, `break`, `continue`, `function`, `taking`, `return`, `each`, `repeat`, `times`, `is`, `equal`, `greater`, `less`, `than`, `at`, `least`, `most`, `import`, `as`, plus the literal words `true`, `false`, `nothing`, and `null`. `import` and `as` became reserved in 0.6.0 and can no longer be used as identifiers.
 
 The frontend preserves source spans (start and end line/column positions) on syntax-tree nodes. Lexer, parser, and runtime errors use these spans to identify the relevant source location.
 
@@ -132,7 +144,7 @@ say "Score: " + score
 
 ## Expressions and operators
 
-Grouping uses parentheses. Precedence from low to high is `or`, `and`, equality (`==`, `!=`, `is equal to`, `is not equal to`), comparison (`>`, `<`, `>=`, `<=`, `is greater than`, `is less than`, `is at least`, `is at most`), addition/subtraction, multiplication/division/remainder, unary `not`, `-`, and `+`, then postfix function calls `(...)` and indexing `[...]`.
+Grouping uses parentheses. Precedence from low to high is `or`, `and`, equality (`==`, `!=`, `is equal to`, `is not equal to`), comparison (`>`, `<`, `>=`, `<=`, `is greater than`, `is less than`, `is at least`, `is at most`), addition/subtraction, multiplication/division/remainder, unary `not`, `-`, and `+`, then postfix function calls `(...)`, indexing `[...]`, and member access `.name`.
 
 Arithmetic operators require numbers (booleans are not numbers). `/` and `%` reject division by zero. `+` adds two numbers, or concatenates when either operand is a string after converting the other operand to its Clarity display form. Comparisons support two numbers or two strings only. Equality treats values of different Clarity types as unequal; in particular, `true == 1` is false.
 
@@ -159,7 +171,7 @@ if age is at least 18 {
 
 ## Data types
 
-Numbers (integers and decimals), strings, booleans (`true`, `false`), null (`nothing` or `null`), lists, dictionaries, and functions are supported. `say` displays `nothing`, `true`, and `false` with these spellings; strings without quotes; lists/dictionaries using Clarity-style literals; and functions as `<function name>`.
+Numbers (integers and decimals), strings, booleans (`true`, `false`), null (`nothing` or `null`), lists, dictionaries, functions, and modules are supported. `say` displays `nothing`, `true`, and `false` with these spellings; strings without quotes; lists/dictionaries using Clarity-style literals; and functions as `<function name>`.
 
 ## Lists and indexing
 
@@ -195,6 +207,14 @@ set user to {
 
 say user["name"]
 set user["age"] to 15
+```
+
+### Dot member access on dictionaries
+
+`dict.name` is read-only shorthand for `dict["name"]` when the key is a string that is a valid identifier. A missing key raises a runtime error (`Property 'name' not found in dictionary`). Dot access on values other than dictionaries and modules raises a runtime error. Assignment through dot access (`set user.age to 15`) is not supported in 0.6.0; use indexed assignment.
+
+```clr
+say user.name     # same as user["name"]
 ```
 
 ## String indexing
@@ -353,6 +373,98 @@ repeat 3 times {
 
 Use `#` for a line comment.
 
+## Modules and imports
+
+Every `.clr` file is a module. Modules are imported using quoted path strings.
+
+### Import forms
+
+```clr
+import "utils/formatting" as fmt              # whole-module import; alias is required
+from "utils/formatting" import format_name    # named import
+from "math_helpers" import square, cube        # several names, comma-separated
+from "math_helpers" import square and cube     # 'and' is accepted as a separator
+from "math_helpers" import square as sq        # per-name alias
+```
+
+* `import "path" as alias` binds the module value to `alias`. Members are read with `alias.member`. Omitting `as alias` is a parser error.
+* `from "path" import name [as alias], ...` binds each requested export directly. Requesting a name the module does not export raises a runtime error that lists the available exports.
+* Import statements may appear anywhere a statement is allowed. They bind names using the same rule as `set` (the nearest existing binding is replaced; otherwise a new binding is created in the current scope).
+
+### Exports and privacy
+
+A module's exports are all bindings created at its top level, including functions, variables, and names it imported itself. Names beginning with `_` are private: importing or accessing them from another module raises a runtime error. Standard-library functions are not exports.
+
+### Module resolution
+
+A trailing `.clr` in the path is optional, and `\` is normalized to `/`. For a path `P`, each search location is tried as `P.clr`, then `P/main.clr`, then `P/mod.clr`:
+
+1. **Relative paths** (beginning with `./` or `../`) are resolved only against the directory of the importing file. If none of the candidates exist, a module error is raised.
+2. **Other paths** are searched in order:
+   1. inside the project root, when the program belongs to a project: `src/P.clr`, `P.clr`, `src/P/main.clr`, `src/P/mod.clr`, `P/main.clr`, `P/mod.clr`;
+   2. relative to the importing file's directory;
+   3. relative to the current working directory.
+
+If no candidate exists, a `Clarity Module Error` lists every searched location.
+
+### Evaluation and caching
+
+A module is evaluated once per program run, in its own isolated top-level scope that sees only the standard library. Later imports of the same file (by canonical path) reuse the cached module, so top-level side effects such as `say` run only on first import. Import cycles are detected and reported as a `Clarity Circular Import Error` showing the cycle chain (for example `b2.clr -> b1.clr -> b2.clr`).
+
+### Dot member access on modules
+
+`module.member` returns an export of the module. Accessing a private (`_`-prefixed) or missing member raises a runtime error.
+
+## Projects
+
+### The `conf.clr` manifest
+
+A project is a directory containing a `conf.clr` file. `conf.clr` uses Clarity syntax but is never executed: it is parsed and validated statically. It must contain exactly one statement, `set project to { ... }`, whose value is a dictionary made only of literal values (strings, numbers, booleans, `nothing`, lists, and dictionaries). Expressions, function calls, and variables are rejected with a `Clarity Project Error`.
+
+```clr
+set project to {
+    name: "my-app",
+    version: "0.1.0",
+    entry: "src/main.clr",
+    description: "A Clarity project",
+    author: "",
+    license: "MIT"
+}
+```
+
+| Field | Required | Rules |
+|---|---|---|
+| `name` | Yes | Non-empty; letters, digits, `_`, and `-` only. |
+| `version` | Yes | A Semantic Versioning string, e.g. `"0.1.0"`. |
+| `entry` | No | Path to the entry file, relative to the project root. If omitted: `src/main.clr` if it exists, else `main.clr` if it exists, else `src/main.clr` if a `src/` directory exists, else `main.clr`. |
+| `description`, `author`, `license` | No | Informational strings. |
+| `dependencies` | No | Accepted and stored, but not used in 0.6.0. Reserved for future package management. |
+
+Other keys are accepted and ignored.
+
+### Project root discovery
+
+The project root is the nearest directory, starting from the relevant directory and moving upward, that contains `conf.clr`. The project root enables project-root module resolution.
+
+## Command-line interface
+
+| Command | Behavior |
+|---|---|
+| `clarity <file.clr>` | Runs a single file (script mode). If the file is inside a project, that project's root is used for module resolution. |
+| `clarity run [entry]` | Runs `entry` if given; otherwise the `entry` of the nearest project. Without a project it falls back to `./src/main.clr`, then `./main.clr`. |
+| `clarity new <name>` | Creates `<name>/` containing `conf.clr`, `README.md`, `src/main.clr`, and `tests/main_test.clr`. The target directory must not exist or must be empty. |
+| `clarity test [path]` | Runs native tests (see below). |
+| `clarity help [command]` | Prints help for the CLI or a command. |
+| `clarity --version`, `-v` | Prints `Clarity 0.6.0`. |
+
+Exit codes: `0` success; `1` a Clarity error (lexer, parser, runtime, module, file read error) or a failed test; `2` command-line usage errors and project errors such as a missing project, a missing configured entry file, or an invalid project name.
+
+### Native test runner
+
+`clarity test` searches recursively for files named `*_test.clr` or `test_*.clr`. It looks in the given `path` (a single `.clr` file path runs just that file). Without a path it uses the project's `tests/` directory, otherwise `./tests`, otherwise the current directory.
+
+Each test file is run in its own scope, and its top-level output is suppressed. Then every top-level function whose name starts with `test_` is called with no arguments, in alphabetical order. A test passes if it finishes without a Clarity error. A file that defines no `test_` functions counts as a single test that passes if its top level runs without error. The command exits with `0` if all tests pass (including when no test files are found) and `1` otherwise.
+
 ## Current limitations
 
-There are no anonymous functions, default parameters, typed parameters, classes, modules/imports, static analysis, formatter, package manager, or compilation backends. These are planned future capabilities and are not implemented in 0.5.0.
+There are no anonymous functions, default parameters, typed parameters, classes, static analysis, formatter, linter, package manager, or compilation backends. Standard-library functions are not namespaced into modules, dot access is read-only, and `dependencies` in `conf.clr` is not resolved. These are planned future capabilities and are not implemented in 0.6.0.

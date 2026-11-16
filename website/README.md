@@ -30,11 +30,11 @@ The official production-ready website and interactive documentation portal for t
    - Categorized gallery (Beginner, Language Features, Standard Library) with copyable real `.clr` code and outputs.
 
 4. **Installation (`/install`)**:
-   - Step-by-step development setup instructions with verification commands.
-   - Transparent preview of upcoming native installers (Windows `.exe`, macOS `.pkg`/brew, Linux).
+   - Windows installer download instructions and source setup instructions across platforms.
+   - Distribution status for Windows, macOS, and Linux.
 
 5. **Roadmap (`/roadmap`)**:
-   - Complete milestone tracker (0.1.0 through 0.5.0 completed, upcoming 0.6.x Modules, Toolchain, Installers, and Editor).
+   - Complete milestone tracker (0.1.0 through 0.6.0 completed, upcoming Toolchain, Native Distribution, and Editor).
 
 6. **404 Page (`*`)**:
    - Custom, polished not-found state with navigation back to safety.

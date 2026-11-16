@@ -250,30 +250,49 @@ def _choose(items: object, rand: _random_module.Random | None = None) -> object:
     return generator.choice(items)
 
 
+def _assert(condition: object, message: object = "Assertion failed") -> None:
+    if not semantics.truthy(condition):
+        msg = semantics.stringify(message) if message is not None else "Assertion failed"
+        raise RuntimeError(f"Assertion failed: {msg}")
+
+
+def _assert_equal(actual: object, expected: object, message: object = None) -> None:
+    if not semantics.equal(actual, expected):
+        expected_str = semantics.stringify(expected)
+        actual_str = semantics.stringify(actual)
+        user_msg = f": {semantics.stringify(message)}" if message is not None else ""
+        raise RuntimeError(
+            f"Assertion failed{user_msg}\n"
+            f"  Expected: {expected_str}\n"
+            f"  Actual:   {actual_str}"
+        )
+
+
 def create_standard_library(
+    fs: FileSystem | None = None,
     filesystem: FileSystem | None = None,
     rand: _random_module.Random | None = None,
 ) -> dict[str, ClarityNativeFunction]:
-    """Create a dictionary of standard-library functions configured with optional providers."""
-    fs = filesystem or DEFAULT_FILESYSTEM
+    """Create a new standard library dictionary with custom filesystem or random provider."""
+    effective_fs = filesystem or fs or DEFAULT_FILESYSTEM
 
     def read_file(path: object) -> str:
         if not isinstance(path, str):
             raise RuntimeError(f"read_file() requires a string path, got {semantics.type_name(path)}")
-        return fs.read_text(path)
+        return effective_fs.read_text(path)
 
     def write_file(path: object, content: object) -> None:
         if not isinstance(path, str):
             raise RuntimeError(f"write_file() requires a string path, got {semantics.type_name(path)}")
         if not isinstance(content, str):
             raise RuntimeError(f"write_file() requires string content, got {semantics.type_name(content)}")
-        fs.write_text(path, content)
+        effective_fs.write_text(path, content)
         return None
 
     def file_exists(path: object) -> bool:
         if not isinstance(path, str):
             raise RuntimeError(f"file_exists() requires a string path, got {semantics.type_name(path)}")
-        return fs.exists(path)
+        return effective_fs.exists(path)
 
     def random_func(minimum: object, maximum: object) -> int | float:
         return _random(minimum, maximum, rand=rand)
@@ -312,6 +331,10 @@ def create_standard_library(
         "read_file": ClarityNativeFunction("read_file", read_file, min_arity=1, max_arity=1, doc="Reads text file with UTF-8 encoding."),
         "write_file": ClarityNativeFunction("write_file", write_file, min_arity=2, max_arity=2, doc="Writes text content to file with UTF-8 encoding."),
         "file_exists": ClarityNativeFunction("file_exists", file_exists, min_arity=1, max_arity=1, doc="Checks if file or path exists."),
+
+        # Testing & Assertions
+        "assert": ClarityNativeFunction("assert", _assert, min_arity=1, max_arity=2, doc="Asserts that condition is truthy, otherwise raises runtime error."),
+        "assert_equal": ClarityNativeFunction("assert_equal", _assert_equal, min_arity=2, max_arity=3, doc="Asserts that actual equals expected, otherwise raises runtime error."),
     }
 
 

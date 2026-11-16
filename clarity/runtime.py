@@ -23,6 +23,34 @@ class ClarityFunction:
 
 
 @dataclass(slots=True)
+class ClarityModule:
+    name: str
+    file_path: object
+    environment: "Environment"
+
+    def display_name(self) -> str:
+        return f"<module {self.name}>"
+
+    def get_export(self, member: str) -> object:
+        if member.startswith("_"):
+            raise RuntimeError(
+                f"Cannot access private identifier '{member}' from module '{self.name}'. "
+                f"Identifiers starting with '_' are private to the declaring module."
+            )
+        if member not in self.environment.values:
+            available = ", ".join(k for k in sorted(self.environment.values.keys()) if not k.startswith("_"))
+            raise RuntimeError(
+                f"Module '{self.name}' has no exported member '{member}'.\n"
+                f"Available exports: {available or '(none)'}"
+            )
+        return self.environment.values[member]
+
+    def exports(self) -> dict[str, object]:
+        return {k: v for k, v in self.environment.values.items() if not k.startswith("_")}
+
+
+
+@dataclass(slots=True)
 class ClarityNativeFunction:
     name: str
     func: Callable[..., object]

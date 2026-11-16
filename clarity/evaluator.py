@@ -1,12 +1,10 @@
-"""Visitor-style evaluator for the Clarity AST."""
-
-from collections.abc import Iterable
+from pathlib import Path
 
 from . import ast
 from .environment import Environment
-from .errors import RuntimeError
+from .errors import ClarityError, RuntimeError
 from . import semantics
-from .runtime import ClarityDict, ClarityFunction, ClarityNativeFunction
+from .runtime import ClarityDict, ClarityFunction, ClarityModule, ClarityNativeFunction
 from .stdlib import get_standard_library
 
 CLARITY_BUILTINS: dict[str, ClarityNativeFunction] = get_standard_library()
@@ -32,13 +30,28 @@ class _ReturnSignal(Exception):
 
 
 class Evaluator:
-    def __init__(self, environment: Environment | None = None, output=None):
+    def __init__(
+        self,
+        environment: Environment | None = None,
+        output=None,
+        module_manager=None,
+        current_file: Path | None = None,
+        project_root: Path | None = None,
+    ):
         if environment is None:
-            self.environment = Environment()
-            self.environment.values.update(CLARITY_BUILTINS)
+            builtins_env = Environment()
+            builtins_env.values.update(CLARITY_BUILTINS)
+            self.environment = Environment(builtins_env)
         else:
             self.environment = environment
         self.output = output or print
+        self.current_file = current_file
+        self.project_root = project_root
+        if module_manager is None:
+            from .modules import ModuleManager
+            self.module_manager = ModuleManager(project_root=project_root, output=self.output)
+        else:
+            self.module_manager = module_manager
         self.loop_depth = 0
         self.function_depth = 0
 
@@ -47,7 +60,7 @@ class Evaluator:
         if method is None: raise RuntimeError(f"Unsupported syntax: {type(node).__name__}")
         try:
             return method(node)
-        except RuntimeError as error:
+        except ClarityError as error:
             raise error.with_span(node.span)
 
     def visit_ProgramNode(self, node: ast.ProgramNode):
@@ -286,3 +299,43 @@ class Evaluator:
             case "!=": return not semantics.equal(left, right)
             case ">" | "<" | ">=" | "<=": return semantics.compare(left, right, node.operator)
         raise RuntimeError(f"Unknown binary operator: {node.operator}")
+
+    def visit_ImportModuleNode(self, node: ast.ImportModuleNode):
+        module_path = self.module_manager.resolve(
+            node.module_path,
+            importing_file=self.current_file,
+            span=node.span,
+        )
+        module = self.module_manager.load_module(module_path, span=node.span)
+        self.environment.assign(node.alias, module)
+        return module
+
+    def visit_FromImportNode(self, node: ast.FromImportNode):
+        module_path = self.module_manager.resolve(
+            node.module_path,
+            importing_file=self.current_file,
+            span=node.span,
+        )
+        module = self.module_manager.load_module(module_path, span=node.span)
+        for item in node.items:
+            try:
+                val = module.get_export(item.name)
+            except RuntimeError as err:
+                raise err.with_span(item.span)
+            target_name = item.alias if item.alias is not None else item.name
+            self.environment.assign(target_name, val)
+        return None
+
+    def visit_MemberAccessNode(self, node: ast.MemberAccessNode):
+        target = self.evaluate(node.target)
+        if isinstance(target, ClarityModule):
+            try:
+                return target.get_export(node.member)
+            except RuntimeError as err:
+                raise err.with_span(node.span)
+        if isinstance(target, (ClarityDict, dict)):
+            if node.member not in target:
+                raise RuntimeError(f"Property '{node.member}' not found in dictionary").with_span(node.span)
+            return target[node.member]
+        raise RuntimeError(f"Cannot access property '{node.member}' on non-object type: {type(target).__name__}").with_span(node.span)
+

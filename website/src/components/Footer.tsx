@@ -77,7 +77,7 @@ export const Footer: React.FC = () => {
             >
               <span>Current version:</span>
               <span className="badge" style={{ fontSize: '0.7rem', padding: '1px 6px' }}>
-                0.5.0
+                0.6.0
               </span>
             </div>
           </div>

@@ -170,3 +170,32 @@ class RepeatNode(StatementNode):
     body: BlockNode
     span: SourceSpan
 
+
+@dataclass(frozen=True, slots=True)
+class ImportItem:
+    name: str
+    alias: str | None
+    span: SourceSpan
+
+
+@dataclass(slots=True)
+class FromImportNode(StatementNode):
+    module_path: str
+    items: list[ImportItem]
+    span: SourceSpan
+
+
+@dataclass(slots=True)
+class ImportModuleNode(StatementNode):
+    module_path: str
+    alias: str
+    span: SourceSpan
+
+
+@dataclass(slots=True)
+class MemberAccessNode(ExpressionNode):
+    target: ExpressionNode
+    member: str
+    span: SourceSpan
+
+

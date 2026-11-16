@@ -22,6 +22,7 @@ class TokenType(Enum):
     RIGHT_BRACE = auto()
     COMMA = auto()
     COLON = auto()
+    DOT = auto()
     NEWLINE = auto()
     EOF = auto()
 

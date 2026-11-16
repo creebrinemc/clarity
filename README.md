@@ -38,9 +38,10 @@ Clarity is developed as a cohesive ecosystem designed with clean boundaries betw
 │  (clarity core) │      │ (tools/install) │      │(clarity.creebrine)│
 │                 │      │                 │      │                 │
 │ • Lexer/Parser  │      │ • CLI Runner    │      │ • Docs & Guides │
-│ • AST & Spans   │      │ • Project CLI*  │      │ • Examples Hub  │
-│ • Runtime Engine│      │ • Test Runner*  │      │ • Downloads*    │
-│ • Standard Lib  │      │ • OS Installer* │      │ • Roadmap       │
+│ • AST & Spans   │      │ • Project CLI   │      │ • Examples Hub  │
+│ • Modules       │      │ • Test Runner   │      │ • Downloads*    │
+│ • Runtime Engine│      │ • Win Installer │      │ • Roadmap       │
+│ • Standard Lib  │      │ • macOS/Linux*  │      │                 │
 └────────┬────────┘      └────────┬────────┘      └─────────────────┘
          │                        │
          └───────────┬────────────┘
@@ -59,12 +60,12 @@ Clarity is developed as a cohesive ecosystem designed with clean boundaries betw
 ```
 
 ### 1. [Language Core](clarity/)
-The pure, headless interpreter containing the lexer, parser, AST, runtime evaluator, first-class closures, and the built-in standard library.
+The pure, headless interpreter containing the lexer, parser, AST, runtime evaluator, first-class closures, the module system, and the built-in standard library.
 
-### 2. [Toolchain](tools/) *(In Progress / Planned)*
-Developer workflow tools including the current command-line runner, future project scaffolding (`clarity new`), test harness (`clarity test`), code formatter (`clarity fmt`), and [native OS installers](installer/).
+### 2. [Toolchain](tools/) *(In Progress)*
+Developer workflow tools: the command-line runner (`clarity <file.clr>`, `clarity run`), project scaffolding (`clarity new`), the native test runner (`clarity test`), and the [Windows native installer](installer/). A formatter, linter, and macOS/Linux installers are planned.
 
-### 3. [Website](website/) *(Planned)*
+### 3. [Website](website/) *(In Development)*
 The official web platform at [**clarity.creebrine.com**](https://clarity.creebrine.com), serving as the central hub for interactive documentation, downloads, and community updates.
 
 ### 4. [Editor](editor/) *(Planned)*
@@ -76,8 +77,9 @@ For detailed architectural boundaries, see [docs/ecosystem.md](docs/ecosystem.md
 
 ## Project Status & Roadmap
 
-* **Current Version**: `0.5.0`
+* **Current Version**: `0.6.0`
 * **Status**: Early development
+* **Changelog**: [CHANGELOG.md](CHANGELOG.md)
 
 ### Completed Milestones
 
@@ -87,12 +89,12 @@ For detailed architectural boundaries, see [docs/ecosystem.md](docs/ecosystem.md
 * [x] **0.3.0 — Functions & Closures**: First-class functions, parameter chains (`taking ... and ...`), return statements, recursion, and lexical closures.
 * [x] **0.4.0 — Data & Readability**: List/dict/string 0-based indexing, indexed assignments, English comparison phrases (`is at least`, `is greater than`), `for each` loops, and `repeat N times`.
 * [x] **0.5.0 — Standard Library**: Built-in functions for Text, Collections, Math, Random selection, and Filesystem operations with zero Python exception leaks.
+* [x] **0.6.0 — Modules & Projects**: `import`/`from ... import` with quoted paths, dot member access, `conf.clr` project manifests, `clarity run` / `clarity new` / `clarity test`, `assert` / `assert_equal`, standalone binary packaging, and the Windows installer.
 
 ### Planned Direction
 
-* [ ] **0.6.x — Modules & Project System**: File imports, namespaces, and multi-file projects.
-* [ ] **Toolchain Enhancements**: Project generator, test runner, and canonical formatting CLI.
-* [ ] **Native Installers**: Zero-config standalone installers for Windows (`.exe`), macOS, and Linux.
+* [ ] **0.7.0 — Development Ecosystem**: Formatter, linter, language server and editor integration, optional types, structured error handling, package management, and Clarity Learn.
+* [ ] **Native Installers**: Homebrew (macOS), WinGet (Windows), and Linux packages.
 * [ ] **Website Launch**: Live documentation portal at [clarity.creebrine.com](https://clarity.creebrine.com).
 * [ ] **Clarity Editor**: Dedicated development environment for `.clr` files.
 
@@ -100,9 +102,13 @@ For detailed architectural boundaries, see [docs/ecosystem.md](docs/ecosystem.md
 
 ## Quickstart
 
-### Installation (Development Prototype)
+### Windows Installer
 
-Clarity requires Python 3.11+.
+Download `Clarity-0.6.0-Windows-x64-Setup.exe` from [GitHub Releases](https://github.com/creebrinemc/clarity/releases). It installs a standalone runtime (no Python required), optionally adds Clarity to `PATH`, and registers `.clr` file associations. See [installer/README.md](installer/README.md).
+
+### Installation from Source (macOS, Linux, Windows)
+
+Running from source requires Python 3.11+.
 
 ```bash
 git clone https://github.com/creebrinemc/clarity.git
@@ -120,7 +126,7 @@ Verify the installation:
 
 ```bash
 clarity --version
-# Output: Clarity 0.5.0
+# Output: Clarity 0.6.0
 ```
 
 ### Running Programs
@@ -130,6 +136,15 @@ Run any `.clr` source file:
 ```bash
 clarity examples/hello.clr
 clarity examples/standard_library.clr
+```
+
+### Creating a Project
+
+```bash
+clarity new my-app
+cd my-app
+clarity run    # runs the entry point declared in conf.clr
+clarity test   # discovers and runs tests/*_test.clr
 ```
 
 ---
@@ -152,6 +167,8 @@ Run the complete test suite with `pytest`:
 ```bash
 python -m pytest -v
 ```
+
+Packaging and installer checks are documented in [installer/README.md](installer/README.md).
 
 ---
 

@@ -5,23 +5,23 @@ import { SEO } from '../components/SEO';
 
 export const Install: React.FC = () => {
   return (
-    <div className="container" style={{ padding: '60px 24px 100px', maxWidth: '840px' }}>
+    <div className="container" style={{ padding: '50px 24px 80px', maxWidth: '840px' }}>
       <SEO
         title="Install Clarity"
-        description="Step-by-step instructions for installing Clarity 0.5.0 in your local development environment."
+        description="Install Clarity 0.6.0 with the Windows installer or from source on macOS, Linux, and Windows."
         canonicalPath="/install"
       />
-      <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
         <span className="badge badge-success" style={{ marginBottom: '12px' }}>
           Installation Guide
         </span>
-        <h1 style={{ fontSize: '2.8rem', marginBottom: '16px' }}>Install Clarity</h1>
+        <h1 className="page-title">Install Clarity</h1>
         <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)' }}>
-          Get Clarity 0.5.0 set up in your local environment.
+          Get Clarity 0.6.0 set up in your local environment.
         </p>
       </div>
 
-      {/* Honest Status Notice */}
+      {/* Status Notice */}
       <div
         className="card"
         style={{
@@ -35,19 +35,40 @@ export const Install: React.FC = () => {
           <AlertCircle size={20} color="#38bdf8" style={{ marginTop: '2px', flexShrink: 0 }} />
           <div>
             <h4 style={{ fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '4px' }}>
-              Current Distribution Notice
+              Current Installation
             </h4>
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-              Clarity 0.5.0 is currently distributed as an open-source development prototype. A zero-configuration standalone native installer (Windows <code>.exe</code>, macOS <code>.pkg</code>, and Linux packages) is actively planned in the roadmap.
+            <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+              Clarity 0.6.0 is available as a native Windows installer (no Python required) and from source on every platform. Native macOS and Linux packages are planned for future releases.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Current Installation Method */}
+      {/* Windows Installer */}
       <div style={{ marginBottom: '48px' }}>
-        <h2 style={{ fontSize: '1.6rem', marginBottom: '8px' }}>
-          1. Development Setup (Current)
+        <h2 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>
+          1. Windows Installer
+        </h2>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
+          Download <code>Clarity-0.6.0-Windows-x64-Setup.exe</code> from{' '}
+          <a href="https://github.com/creebrinemc/clarity/releases" target="_blank" rel="noopener noreferrer">
+            GitHub Releases
+          </a>
+          . The installer bundles a standalone runtime, can add Clarity to your <code>PATH</code>, and registers{' '}
+          <code>.clr</code> file associations. Open a new terminal afterwards and verify:
+        </p>
+        <CodeBlock
+          code={`clarity --version
+# Output: Clarity 0.6.0`}
+          filename="terminal"
+          showLineNumbers={false}
+        />
+      </div>
+
+      {/* Source Installation Method */}
+      <div style={{ marginBottom: '48px' }}>
+        <h2 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>
+          2. Setup from Source (macOS, Linux, Windows)
         </h2>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
           Requires <strong>Python 3.11 or newer</strong> and <strong>pip</strong>.
@@ -94,7 +115,7 @@ pip install -e ".[dev]"`}
             </h4>
             <CodeBlock
               code={`clarity --version
-# Output: Clarity 0.5.0`}
+# Output: Clarity 0.6.0`}
               filename="terminal"
               showLineNumbers={false}
             />
@@ -105,14 +126,18 @@ pip install -e ".[dev]"`}
       {/* Running Your First Script */}
       <div style={{ marginBottom: '56px' }}>
         <h2 style={{ fontSize: '1.6rem', marginBottom: '8px' }}>
-          2. Running Scripts
+          3. Running Scripts &amp; Projects
         </h2>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>
-          Pass any <code>.clr</code> source file directly to the <code>clarity</code> command:
+          Pass any <code>.clr</code> source file directly to the <code>clarity</code> command, or create a project:
         </p>
         <CodeBlock
           code={`clarity examples/hello.clr
-clarity examples/standard_library.clr`}
+
+clarity new my-app
+cd my-app
+clarity run
+clarity test`}
           filename="terminal"
           showLineNumbers={false}
         />
@@ -123,11 +148,11 @@ clarity examples/standard_library.clr`}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
           <Clock size={18} color="#f59e0b" />
           <h2 style={{ fontSize: '1.6rem' }}>
-            Upcoming Native Installers (Planned)
+            Native Distribution Status
           </h2>
         </div>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>
-          Future releases will provide single-click installers that bundle the standalone runtime, eliminating the need for manual Python environment setup.
+          Future releases will extend standalone distribution to macOS and Linux, eliminating the need for manual Python environment setup.
         </p>
 
         <div
@@ -142,13 +167,13 @@ clarity examples/standard_library.clr`}
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
               Standalone <code>.exe</code> installer with automatic PATH setup and <code>.clr</code> file association.
             </p>
-            <span className="badge badge-warning" style={{ fontSize: '0.72rem' }}>Coming Soon</span>
+            <span className="badge badge-success" style={{ fontSize: '0.72rem' }}>Available in 0.6.0</span>
           </div>
 
           <div className="card" style={{ padding: '20px' }}>
             <h4 style={{ color: 'var(--text-primary)', marginBottom: '6px' }}>macOS Package</h4>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
-              Signed <code>.pkg</code> installer and official Homebrew tap (<code>brew install clarity</code>).
+              Official Homebrew tap and standalone binaries.
             </p>
             <span className="badge badge-warning" style={{ fontSize: '0.72rem' }}>Coming Soon</span>
           </div>
@@ -156,7 +181,7 @@ clarity examples/standard_library.clr`}
           <div className="card" style={{ padding: '20px' }}>
             <h4 style={{ color: 'var(--text-primary)', marginBottom: '6px' }}>Linux Packages</h4>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
-              Native <code>.deb</code> / <code>.rpm</code> binaries and a one-line curl install script.
+              Native <code>.deb</code> packages and portable standalone builds.
             </p>
             <span className="badge badge-warning" style={{ fontSize: '0.72rem' }}>Coming Soon</span>
           </div>

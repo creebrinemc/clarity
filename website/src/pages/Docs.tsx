@@ -8,6 +8,7 @@ import {
   Terminal,
   FileText,
   ChevronRight,
+  ChevronDown,
   ArrowLeft,
   ArrowRight,
 } from 'lucide-react';
@@ -30,12 +31,15 @@ export const Docs: React.FC = () => {
   const rawPath = location.pathname.replace(/^\/docs\/?/, '').trim();
   const isInvalidSection = rawPath !== '' && !VALID_SECTIONS.includes(rawPath);
   const [activeTab, setActiveTab] = useState<string>('getting-started');
+  const [mobileNavOpen, setMobileNavOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (rawPath && VALID_SECTIONS.includes(rawPath)) {
       setActiveTab(rawPath);
+      setMobileNavOpen(false);
     } else if (!rawPath) {
       setActiveTab('getting-started');
+      setMobileNavOpen(false);
     }
   }, [rawPath]);
 
@@ -53,7 +57,7 @@ export const Docs: React.FC = () => {
         <div>
           <div style={{ marginBottom: '28px' }}>
             <span className="badge" style={{ marginBottom: '8px' }}>Setup Guide</span>
-            <h1 style={{ fontSize: '2.4rem', marginBottom: '12px' }}>Getting Started with Clarity</h1>
+            <h1 className="page-title" style={{ marginBottom: '12px' }}>Getting Started with Clarity</h1>
             <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)' }}>
               Step-by-step instructions for installing Clarity and running your first `.clr` script.
             </p>
@@ -61,7 +65,7 @@ export const Docs: React.FC = () => {
 
           <h2 style={{ fontSize: '1.5rem', marginTop: '32px', marginBottom: '16px' }}>1. Prerequisites</h2>
           <p style={{ marginBottom: '16px' }}>
-            Clarity 0.5.0 is currently distributed as a pure Python-based interpreter prototype. You will need:
+            On Windows, Clarity 0.6.0 can be installed with <code>Clarity-0.6.0-Windows-x64-Setup.exe</code> from GitHub Releases (no Python required). To install from source on any platform, you will need:
           </p>
           <ul style={{ paddingLeft: '24px', marginBottom: '24px', color: 'var(--text-secondary)' }}>
             <li><strong>Python</strong>: Version 3.11 or newer</li>
@@ -91,7 +95,7 @@ pip install -e ".[dev]"`}
           </p>
           <CodeBlock
             code={`clarity --version
-# Output: Clarity 0.5.0`}
+# Output: Clarity 0.6.0`}
             filename="terminal"
             showLineNumbers={false}
           />
@@ -126,6 +130,30 @@ say "Your score: " + final_score`}
             filename="terminal"
             showLineNumbers={false}
           />
+
+          <h2 style={{ fontSize: '1.5rem', marginTop: '36px', marginBottom: '16px' }}>4. Projects, Modules &amp; Tests</h2>
+          <p style={{ marginBottom: '16px' }}>
+            Clarity 0.6.0 can scaffold a project with a static <code>conf.clr</code> manifest, a <code>src/main.clr</code> entry point, and a native test suite:
+          </p>
+          <CodeBlock
+            code={`clarity new my-app
+cd my-app
+clarity run
+clarity test`}
+            filename="terminal"
+            showLineNumbers={false}
+          />
+          <p style={{ marginTop: '20px', marginBottom: '12px' }}>
+            Split code across files with quoted import paths. Names starting with <code>_</code> stay private to their module:
+          </p>
+          <CodeBlock
+            code={`from "utils/formatting" import format_name
+import "utils/formatting" as fmt
+
+say format_name("alice")
+say fmt.format_name("bob")`}
+            filename="main.clr"
+          />
         </div>
       ),
     },
@@ -138,7 +166,7 @@ say "Your score: " + final_score`}
         <div>
           <div style={{ marginBottom: '28px' }}>
             <span className="badge" style={{ marginBottom: '8px' }}>Core Language</span>
-            <h1 style={{ fontSize: '2.4rem', marginBottom: '12px' }}>Language Guide</h1>
+            <h1 className="page-title" style={{ marginBottom: '12px' }}>Language Guide</h1>
             <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)' }}>
               Detailed overview of Clarity syntax, variables, scoping, control flow, functions, and data structures.
             </p>
@@ -162,7 +190,7 @@ say global_count  # 1`}
 
           <h2 style={{ fontSize: '1.5rem', marginTop: '36px', marginBottom: '16px' }}>2. Data Types</h2>
           <p style={{ marginBottom: '16px' }}>
-            Clarity provides seven core value types with strict equality semantics:
+            Clarity provides seven core value types (plus imported module namespaces) with strict equality semantics:
           </p>
           <div style={{ overflowX: 'auto', marginBottom: '24px' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.92rem' }}>
@@ -182,7 +210,7 @@ say global_count  # 1`}
                 <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                   <td style={{ padding: '10px 14px', color: 'var(--accent)' }}>String</td>
                   <td style={{ padding: '10px 14px' }}><code>"Hello"</code>, <code>"Café"</code></td>
-                  <td style={{ padding: '10px 14px' }}>UTF-8 text with escapes (<code>\n</code>, <code>\t</code>).</td>
+                  <td style={{ padding: '10px 14px' }}>UTF-8 text with escapes (<code>\\n</code>, <code>\\t</code>).</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                   <td style={{ padding: '10px 14px', color: 'var(--accent)' }}>Boolean</td>
@@ -201,12 +229,12 @@ say global_count  # 1`}
                 </tr>
                 <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                   <td style={{ padding: '10px 14px', color: 'var(--accent)' }}>Dictionary</td>
-                  <td style={{ padding: '10px 14px' }}><code>{`{ name: "Alice", age: 30 }`}</code></td>
+                  <td style={{ padding: '10px 14px' }}><code>{'{ name: "Alice", age: 30 }'}</code></td>
                   <td style={{ padding: '10px 14px' }}>Key-value store preserving distinct types.</td>
                 </tr>
                 <tr>
                   <td style={{ padding: '10px 14px', color: 'var(--accent)' }}>Function</td>
-                  <td style={{ padding: '10px 14px' }}><code>{`<function greet>`}</code></td>
+                  <td style={{ padding: '10px 14px' }}><code>{'<function greet>'}</code></td>
                   <td style={{ padding: '10px 14px' }}>First-class callable closures.</td>
                 </tr>
               </tbody>
@@ -261,6 +289,20 @@ say player["name"]
 set player["hp"] to 90`}
             filename="data.clr"
           />
+
+          <h2 style={{ fontSize: '1.5rem', marginTop: '36px', marginBottom: '16px' }}>6. Modules, Imports &amp; Dot Access</h2>
+          <p style={{ marginBottom: '14px' }}>
+            Split code across files using quoted paths with <code>from "..." import ...</code> or <code>import "..." as alias</code>. Identifiers beginning with <code>_</code> remain private to their module, and dot syntax reads module exports or dictionary properties (read-only on dictionaries).
+          </p>
+          <CodeBlock
+            code={`import "utils/formatting" as fmt
+from "math_helpers" import square and cube
+
+say fmt.title("clarity")
+say square(4)
+say player.name`}
+            filename="app.clr"
+          />
         </div>
       ),
     },
@@ -273,9 +315,9 @@ set player["hp"] to 90`}
         <div>
           <div style={{ marginBottom: '28px' }}>
             <span className="badge" style={{ marginBottom: '8px' }}>Built-in Library</span>
-            <h1 style={{ fontSize: '2.4rem', marginBottom: '12px' }}>Standard Library Reference</h1>
+            <h1 className="page-title" style={{ marginBottom: '12px' }}>Standard Library Reference</h1>
             <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)' }}>
-              Core standard library functions globally available in Clarity 0.5.0 as first-class values.
+              Core standard library functions globally available in Clarity 0.6.0 as first-class values.
             </p>
           </div>
 
@@ -371,6 +413,18 @@ set player["hp"] to 90`}
               <code>file_exists(path)</code> — Returns <code>true</code> / <code>false</code>.
             </li>
           </ul>
+
+          <h2 style={{ fontSize: '1.4rem', color: 'var(--accent)', marginTop: '36px', marginBottom: '14px' }}>
+            Testing &amp; Assertion Functions
+          </h2>
+          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
+            <li className="card" style={{ padding: '16px 20px' }}>
+              <code>assert(condition [, message])</code> — Raises a Clarity runtime error if <code>condition</code> is falsey.
+            </li>
+            <li className="card" style={{ padding: '16px 20px' }}>
+              <code>assert_equal(actual, expected [, message])</code> — Raises a Clarity runtime error if <code>actual != expected</code> under Clarity equality.
+            </li>
+          </ul>
         </div>
       ),
     },
@@ -383,7 +437,7 @@ set player["hp"] to 90`}
         <div>
           <div style={{ marginBottom: '28px' }}>
             <span className="badge" style={{ marginBottom: '8px' }}>Practical Code</span>
-            <h1 style={{ fontSize: '2.4rem', marginBottom: '12px' }}>Examples Walkthrough</h1>
+            <h1 className="page-title" style={{ marginBottom: '12px' }}>Examples Walkthrough</h1>
             <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)' }}>
               Curated scripts from the repository demonstrating language features in action.
             </p>
@@ -428,7 +482,7 @@ if user["scores"][0] is at least 90 {
 
 repeat 2 times {
     say "Great work!"
-}`}
+} `}
                 filename="data_access.clr"
                 output={`Creebrine passed with distinction!\nGreat work!\nGreat work!`}
               />
@@ -446,7 +500,7 @@ repeat 2 times {
         <div>
           <div style={{ marginBottom: '28px' }}>
             <span className="badge" style={{ marginBottom: '8px' }}>Platform Map</span>
-            <h1 style={{ fontSize: '2.4rem', marginBottom: '12px' }}>The Clarity Ecosystem</h1>
+            <h1 className="page-title" style={{ marginBottom: '12px' }}>The Clarity Ecosystem</h1>
             <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)' }}>
               Component boundaries, responsibilities, and architectural separation of concerns.
             </p>
@@ -489,13 +543,13 @@ repeat 2 times {
     {
       id: 'spec',
       title: 'Formal Specification',
-      description: 'Formal language specification for Clarity 0.5.0 including grammar rules, precedence, and error contracts.',
+      description: 'Formal language specification for Clarity 0.6.0 including grammar rules, precedence, and error contracts.',
       icon: <FileText size={17} />,
       content: (
         <div>
           <div style={{ marginBottom: '28px' }}>
             <span className="badge" style={{ marginBottom: '8px' }}>Technical Contract</span>
-            <h1 style={{ fontSize: '2.4rem', marginBottom: '12px' }}>Clarity 0.5.0 Specification</h1>
+            <h1 className="page-title" style={{ marginBottom: '12px' }}>Clarity 0.6.0 Specification</h1>
             <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)' }}>
               Summary of technical specifications, grammar rules, operator precedence, and error contracts.
             </p>
@@ -511,7 +565,7 @@ repeat 2 times {
               <li>Additive: <code>+</code> (numeric add or string concat), <code>-</code></li>
               <li>Multiplicative: <code>*</code>, <code>/</code>, <code>%</code></li>
               <li>Unary: <code>not</code>, <code>-</code>, <code>+</code></li>
-              <li>Postfix: function call <code>(...)</code>, indexing <code>[...]</code></li>
+              <li>Postfix: function call <code>(...)</code>, indexing <code>[...]</code>, member access <code>.name</code></li>
             </ol>
           </div>
 
@@ -552,7 +606,7 @@ repeat 2 times {
           gap: '8px',
           fontSize: '0.85rem',
           color: 'var(--text-muted)',
-          marginBottom: '28px',
+          marginBottom: '20px',
         }}
       >
         <Link to="/" style={{ color: 'var(--text-muted)' }}>Home</Link>
@@ -561,6 +615,83 @@ repeat 2 times {
         <ChevronRight size={14} aria-hidden="true" />
         <span style={{ color: 'var(--text-primary)' }} aria-current="page">{currentSection.title}</span>
       </nav>
+
+      {/* Compact Mobile Section Selector */}
+      <div className="docs-mobile-selector">
+        <button
+          onClick={() => setMobileNavOpen(!mobileNavOpen)}
+          className="btn btn-secondary"
+          style={{
+            width: '100%',
+            justifyContent: 'space-between',
+            padding: '10px 14px',
+            borderRadius: 'var(--radius-md)',
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border-medium)',
+            marginBottom: '20px',
+            cursor: 'pointer',
+          }}
+          aria-expanded={mobileNavOpen}
+          aria-label="Documentation section navigation"
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ color: 'var(--accent)', display: 'flex', alignItems: 'center' }}>{currentSection.icon}</span>
+            <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Documentation:</span>
+            <strong style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>{currentSection.title}</strong>
+          </div>
+          <ChevronDown
+            size={16}
+            style={{
+              transform: mobileNavOpen ? 'rotate(180deg)' : 'none',
+              transition: 'transform 0.2s ease',
+              color: 'var(--text-muted)',
+            }}
+          />
+        </button>
+
+        {mobileNavOpen && (
+          <div
+            style={{
+              background: 'var(--bg-surface-elevated)',
+              border: '1px solid var(--border-medium)',
+              borderRadius: 'var(--radius-md)',
+              padding: '6px',
+              marginTop: '-12px',
+              marginBottom: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4px',
+              boxShadow: '0 12px 28px rgba(0,0,0,0.5)',
+            }}
+          >
+            {sections.map((section) => {
+              const active = section.id === activeTab;
+              return (
+                <Link
+                  key={section.id}
+                  to={`/docs/${section.id}`}
+                  onClick={() => setMobileNavOpen(false)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '10px 12px',
+                    borderRadius: 'var(--radius-sm)',
+                    textDecoration: 'none',
+                    background: active ? 'rgba(56, 189, 248, 0.12)' : 'transparent',
+                    color: active ? 'var(--accent)' : 'var(--text-primary)',
+                    fontWeight: active ? 600 : 500,
+                    fontSize: '0.9rem',
+                  }}
+                >
+                  {section.icon}
+                  <span>{section.title}</span>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       <div
         style={{
@@ -675,15 +806,19 @@ repeat 2 times {
       </div>
 
       <style>{`
+        .docs-mobile-selector {
+          display: none;
+        }
         @media (max-width: 860px) {
           .docs-layout {
             grid-template-columns: 1fr !important;
-            gap: 24px !important;
+            gap: 0 !important;
           }
           .docs-sidebar {
-            position: static !important;
-            display: grid !important;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+            display: none !important;
+          }
+          .docs-mobile-selector {
+            display: block !important;
           }
         }
       `}</style>

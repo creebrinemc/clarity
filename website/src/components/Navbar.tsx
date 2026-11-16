@@ -93,7 +93,7 @@ export const Navbar: React.FC = () => {
               marginLeft: '4px',
             }}
           >
-            v0.5.0
+            v0.6.0
           </span>
         </Link>
 

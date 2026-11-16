@@ -12,10 +12,10 @@ Clarity is structured as a unified programming-language ecosystem composed of di
 │  (clarity core)  │   │  (tools, install) │   │ (clarity.creebrine)│
 │                  │   │                   │   │                   │
 │ • Lexer / Parser │   │ • CLI Runner      │   │ • Documentation   │
-│ • AST & Spans    │   │ • Project Tools*  │   │ • Interactive Run*│
-│ • Evaluator      │   │ • Test Harness*   │   │ • Downloads Hub*  │
-│ • Runtime Values │   │ • Package Tool*   │   │ • Roadmap & News  │
-│ • Standard Lib   │   │ • OS Installers*  │   └───────────────────┘
+│ • AST & Spans    │   │ • Project Tools   │   │ • Interactive Run*│
+│ • Evaluator      │   │ • Test Harness    │   │ • Downloads Hub*  │
+│ • Runtime/Modules│   │ • Package Tool*   │   │ • Roadmap & News  │
+│ • Standard Lib   │   │ • Win Installer   │   └───────────────────┘
 │ • SPEC.md        │   └─────────┬─────────┘
 └────────┬─────────┘             │
          │                       │
@@ -43,6 +43,7 @@ The language core is the authoritative implementation of the Clarity language.
 
 * **Responsibilities**:
   * Lexical analysis and source-span tokenization (`lexer.py`, `tokens.py`, `source.py`).
+  * Module resolution, caching, and cycle detection (`modules.py`).
   * Syntax validation and AST construction (`parser.py`, `ast.py`).
   * Runtime environment, scope chains, and first-class functions (`runtime.py`, `environment.py`).
   * Language semantics and type rules (`semantics.py`).
@@ -55,9 +56,9 @@ The language core is the authoritative implementation of the Clarity language.
 The toolchain provides the developer interface for building, running, testing, and distributing Clarity software.
 
 * **Components**:
-  * **CLI (`clarity.cli`)**: Current command-line entrypoint to execute `.clr` source files and report versions.
-  * **Project & Scaffolding Tooling (`tools/`)**: Future capabilities for creating new projects, scaffolding templates, running test suites, and formatting code.
-  * **Native Installers (`installer/`)**: Future self-contained setup programs (Windows `.exe`, macOS `.pkg`/Homebrew, Linux packages) that bundle the standalone runtime, configure system `PATH`, and register `.clr` file associations.
+  * **CLI (`clarity.cli`)**: Command-line entry point: script execution, `clarity run`, `clarity new`, `clarity test`, and `--version`.
+  * **Project Model & Test Runner (`clarity/project.py`, `clarity/tester.py`)**: Static `conf.clr` manifests, project-root discovery, and native test discovery (since 0.6.0). A formatter and package tooling are planned.
+  * **Native Installers (`installer/`)**: A PyInstaller standalone runtime and an Inno Setup Windows installer that configures `PATH` and `.clr` file associations (since 0.6.0). macOS and Linux distribution are planned.
 * **Design Rule**: Toolchain components interface with the language core via clean programmatic APIs or CLI boundaries.
 
 ### 3. Clarity Website (`website/`)

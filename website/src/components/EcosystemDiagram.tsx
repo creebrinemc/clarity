@@ -19,13 +19,14 @@ const COMPONENTS: ComponentInfo[] = [
     subtitle: 'Headless Interpreter & Semantics',
     icon: <Cpu size={22} color="#38bdf8" />,
     status: 'active',
-    statusLabel: 'v0.5.0 Complete',
+    statusLabel: 'v0.6.0 Complete',
     description:
-      'The pure language engine: hand-written lexer, recursive-descent parser, AST with source spans, runtime evaluator, lexical closures, and built-in standard library.',
+      'The pure language engine: hand-written lexer, recursive-descent parser, AST with source spans, runtime evaluator, lexical closures, modules and imports, and built-in standard library.',
     items: [
       'Lexer & Parser with source-span tracking',
       'Visitor evaluator & lexical environments',
       'First-class functions & mutable closures',
+      'Modules, imports & dot member access',
       'Built-in Standard Library (Text, Math, Files)',
     ],
   },
@@ -35,14 +36,14 @@ const COMPONENTS: ComponentInfo[] = [
     subtitle: 'Developer Workflow & CLI',
     icon: <Terminal size={22} color="#818cf8" />,
     status: 'in-progress',
-    statusLabel: 'In Progress / Planned',
+    statusLabel: 'In Progress',
     description:
       'High-level CLI tools for building, scaffolding, formatting, and distributing Clarity programs across operating systems.',
     items: [
-      'Current CLI runner (`clarity <file.clr>`)',
+      'CLI runner (`clarity <file.clr>`, `clarity run`)',
       'Project scaffolding (`clarity new`)',
-      'Test harness (`clarity test`)',
-      'Native OS Installers (.exe, .pkg, Linux)',
+      'Native test runner (`clarity test`)',
+      'Windows installer (macOS & Linux planned)',
     ],
   },
   {
@@ -88,9 +89,100 @@ export const EcosystemDiagram: React.FC = () => {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: '24px',
+        gap: '20px',
       }}
     >
+      {/* Visual Architectural Map Hierarchy */}
+      <div
+        style={{
+          background: 'rgba(14, 18, 26, 0.7)',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '18px 20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+        }}
+        className="ecosystem-architecture-banner"
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: 'var(--accent)', fontWeight: 700, letterSpacing: '0.05em' }}>
+              ECOSYSTEM ARCHITECTURE
+            </span>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>•</span>
+            <span style={{ fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
+              Headless Core Foundation with Decoupled Toolchains & Interfaces
+            </span>
+          </div>
+        </div>
+
+        {/* Tree Diagram Connection Bar */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: '10px',
+          }}
+          className="ecosystem-tree-grid"
+        >
+          {[
+            { id: 'language', name: '1. Language Core', desc: 'Lexer • Parser • AST • Evaluator', color: 'var(--accent)' },
+            { id: 'toolchain', name: '2. Toolchain', desc: 'CLI • Runner • Installers', color: 'var(--accent-purple)' },
+            { id: 'website', name: '3. Website', desc: 'Docs • Guides • Portal', color: 'var(--accent-emerald)' },
+            { id: 'editor', name: '4. Clarity Editor', desc: 'IDE • Syntax Diagnostics', color: 'var(--accent-rose)' },
+          ].map((node) => {
+            const isSelected = node.id === selectedId;
+            return (
+              <button
+                key={node.id}
+                onClick={() => setSelectedId(node.id)}
+                style={{
+                  background: isSelected ? 'rgba(56, 189, 248, 0.1)' : 'rgba(255, 255, 255, 0.02)',
+                  border: isSelected ? '1px solid var(--accent)' : '1px solid var(--border-subtle)',
+                  borderRadius: 'var(--radius-sm)',
+                  padding: '8px 12px',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <div style={{ fontSize: '0.84rem', fontWeight: 600, color: isSelected ? 'var(--accent)' : 'var(--text-primary)', marginBottom: '2px' }}>
+                  {node.name}
+                </div>
+                <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)' }}>
+                  {node.desc}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Visual Architecture Schematic Pipeline */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            paddingTop: '6px',
+            borderTop: '1px dashed var(--border-subtle)',
+            fontSize: '0.76rem',
+            fontFamily: 'var(--font-mono)',
+            color: 'var(--text-muted)',
+            flexWrap: 'wrap',
+          }}
+        >
+          <span style={{ color: 'var(--accent)', fontWeight: 600 }}>Language Core (Pure AST/Runtime)</span>
+          <span>&rarr;</span>
+          <span style={{ color: 'var(--accent-purple)' }}>Toolchain (CLI &amp; Native Installers)</span>
+          <span>&rarr;</span>
+          <span style={{ color: 'var(--accent-emerald)' }}>Website</span>
+          <span>&amp;</span>
+          <span style={{ color: 'var(--accent-rose)' }}>Clarity Editor</span>
+        </div>
+      </div>
+
       {/* Cards Grid */}
       <div
         style={{

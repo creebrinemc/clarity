@@ -1,6 +1,6 @@
 # Clarity Standard Library Reference
 
-Clarity 0.5.0 features a hybrid standard-library model. Core common utilities are **globally available** without imports, exposed as first-class callable values.
+Clarity 0.6.0 features a hybrid standard-library model. Core common utilities are **globally available** without imports, exposed as first-class callable values.
 
 ---
 
@@ -247,3 +247,16 @@ function apply taking func and value {
 
 say apply(sqrt, 100)  # 10
 ```
+
+---
+
+## 7. Testing & Assertion Functions
+
+* `assert(condition [, message])`: Asserts that `condition` evaluates to a truthy value. Raises a `Clarity RuntimeError` if `condition` is falsey.
+* `assert_equal(actual, expected [, message])`: Asserts that `actual == expected`. If values differ, raises a `Clarity RuntimeError` with formatted expected and actual values.
+
+```clr
+assert(10 > 5, "Ten should be greater than five")
+assert_equal(2 * 3, 6, "2 times 3 is 6")
+```
+

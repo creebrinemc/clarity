@@ -85,36 +85,40 @@ const MILESTONES: Milestone[] = [
     ],
   },
   {
-    version: '0.6.x',
+    version: '0.6.0',
     title: 'Modules & Project System',
-    status: 'in-progress',
-    description: 'Module import system, namespaces, and structured multi-file project resolution.',
+    status: 'completed',
+    description: 'Module imports, dot member access, static project manifests, a project-aware CLI, and native testing.',
     highlights: [
-      '`import` statements and module namespaces',
-      'Project manifest configuration (`clarity.toml`)',
-      'Multi-file compilation and resolution',
+      '`import "path" as name` and `from "path" import ...` with private `_` names',
+      'Dot member access for modules and dictionaries (`fmt.title`, `user.name`)',
+      'Static `conf.clr` project manifest',
+      '`clarity run`, `clarity new`, and `clarity test` commands',
+      '`assert` and `assert_equal` built-ins',
+      'Standalone runtime and Windows installer configuration',
     ],
   },
   {
     version: 'Toolchain',
     title: 'Developer Tooling',
     status: 'planned',
-    description: 'Official CLI enhancements for project scaffolding, testing, and formatting.',
+    description: 'Project scaffolding and testing shipped in 0.6.0. Formatting, static checks, and editor support are next.',
     highlights: [
-      '`clarity new` project generator',
-      '`clarity test` native test runner',
-      '`clarity fmt` canonical code formatter',
+      '`clarity new` project generator (0.6.0)',
+      '`clarity test` native test runner (0.6.0)',
+      'Canonical code formatter and static checks (planned)',
+      'Language server and editor integration (planned)',
     ],
   },
   {
     version: 'Installers',
     title: 'Native OS Distribution',
-    status: 'planned',
+    status: 'in-progress',
     description: 'Zero-configuration standalone setup packages bundling the runtime for all major operating systems.',
     highlights: [
-      'Windows standalone `.exe` installer with PATH and `.clr` file association',
-      'macOS `.pkg` installer and Homebrew formula',
-      'Linux native packages and standalone installation script',
+      'Windows `.exe` installer with PATH and `.clr` file association (0.6.0)',
+      'macOS Homebrew distribution (planned)',
+      'Linux native packages and portable builds (planned)',
     ],
   },
   {
@@ -143,17 +147,17 @@ const MILESTONES: Milestone[] = [
 
 export const Roadmap: React.FC = () => {
   return (
-    <div className="container" style={{ padding: '60px 24px 100px', maxWidth: '860px' }}>
+    <div className="container" style={{ padding: '50px 24px 80px', maxWidth: '860px' }}>
       <SEO
         title="Clarity Roadmap"
         description="Explore the past, present, and future development milestones for the Clarity programming language and ecosystem."
         canonicalPath="/roadmap"
       />
-      <div style={{ textAlign: 'center', marginBottom: '56px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '44px' }}>
         <span className="badge" style={{ marginBottom: '12px' }}>
           Milestone Tracker
         </span>
-        <h1 style={{ fontSize: '2.8rem', marginBottom: '16px' }}>Project Roadmap</h1>
+        <h1 className="page-title">Project Roadmap</h1>
         <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)' }}>
           Transparent overview of completed language milestones and planned ecosystem components.
         </p>

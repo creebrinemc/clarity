@@ -1,0 +1,106 @@
+name: Build Native Clarity Installers
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+    paths:
+      - 'clarity/**'
+      - 'installer/**'
+      - 'pyproject.toml'
+      - '.github/workflows/build-installer.yml'
+  pull_request:
+    paths:
+      - 'clarity/**'
+      - 'installer/**'
+      - 'pyproject.toml'
+  workflow_dispatch:
+
+jobs:
+  # ============================================================================
+  # 1. Run Core Language Test Suite Across OS Matrix
+  # ============================================================================
+  test-language:
+    name: Test Core Language (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.11', '3.12']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run Pytest Regression Suite
+        run: |
+          pytest -v
+
+  # ============================================================================
+  # 2. Build Windows Standalone Binary & Inno Setup Native Installer
+  # ============================================================================
+  build-windows-installer:
+    name: Build Windows x64 Native Installer
+    needs: test-language
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install PyInstaller
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller setuptools
+
+      - name: Build Standalone Clarity CLI Bundle
+        run: |
+          python installer/scripts/build_standalone.py --clean
+
+      - name: Test Compiled Standalone Binary
+        run: |
+          python installer/scripts/test_standalone.py
+
+      - name: Setup Inno Setup Compiler
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+        with:
+          path: installer/windows/clarity_setup.iss
+
+      - name: Verify Compiled Installer Artifact
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem -Path dist\installer -Filter "*.exe" | Select-Object -First 1
+          if (-not $installer) {
+            Write-Error "Installer executable not found in dist\installer"
+            exit 1
+          }
+          Write-Host "Found compiled installer: $($installer.FullName) ($($installer.Length) bytes)"
+
+      - name: Upload Windows Installer Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Clarity-Windows-x64-Setup
+          path: dist/installer/*.exe
+          retention-days: 14
+
+      - name: Upload Standalone Portable Binary Directory
+        uses: actions/upload-artifact@v4
+        with:
+          name: Clarity-Windows-x64-Portable
+          path: dist/clarity/
+          retention-days: 14

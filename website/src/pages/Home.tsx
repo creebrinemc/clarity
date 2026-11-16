@@ -152,7 +152,7 @@ export const Home: React.FC = () => {
                 }}
               >
                 <Sparkles size={13} />
-                <span>Clarity 0.5.0 Released</span>
+                <span>Clarity 0.6.0 Released</span>
               </div>
 
               <h1
@@ -230,7 +230,7 @@ export const Home: React.FC = () => {
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <CheckCircle2 size={15} color="#10b981" />
-                  <span>199 Passing Tests</span>
+                  <span>235 Passing Tests</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <CheckCircle2 size={15} color="#10b981" />
@@ -385,13 +385,13 @@ export const Home: React.FC = () => {
         <div className="container">
           <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto 48px' }}>
             <span className="badge" style={{ marginBottom: '12px' }}>
-              Expressiveness
+              Read It Like This
             </span>
             <h2 style={{ fontSize: '2.2rem', marginBottom: '16px' }}>
               Readability by Design
             </h2>
             <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)' }}>
-              Clarity makes deliberate choices to favor clarity of thought over symbolic brevity.
+              Clarity replaces cryptographic punctuation with self-documenting syntax without sacrificing structural certainty.
             </p>
           </div>
 
@@ -404,112 +404,166 @@ export const Home: React.FC = () => {
           >
             {/* Card 1: Comparisons */}
             <div className="card">
-              <h4 style={{ fontSize: '1.1rem', marginBottom: '12px', color: 'var(--text-primary)' }}>
-                English Comparison Phrases
-              </h4>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <h4 style={{ fontSize: '1.1rem', color: 'var(--text-primary)' }}>
+                  English Comparisons
+                </h4>
+                <span className="badge" style={{ fontSize: '0.72rem' }}>Conditionals</span>
+              </div>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
-                Comparisons can be written as natural English phrases or traditional symbols.
+                Natural phrases with exact precedence semantics.
               </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div
-                  style={{
-                    background: 'var(--bg-code)',
-                    padding: '10px 14px',
-                    borderRadius: 'var(--radius-sm)',
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '0.88rem',
-                    color: 'var(--accent)',
-                    border: '1px solid var(--border-subtle)',
-                  }}
-                >
-                  if score is at least 100 {'{ ... }'}
+
+              <div
+                style={{
+                  background: 'var(--bg-code)',
+                  padding: '12px 16px',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--border-medium)',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.88rem',
+                  marginBottom: '10px',
+                }}
+              >
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.05em' }}>
+                  Clarity Syntax
                 </div>
-                <div
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.02)',
-                    padding: '10px 14px',
-                    borderRadius: 'var(--radius-sm)',
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '0.88rem',
-                    color: 'var(--text-muted)',
-                  }}
-                >
-                  if score is greater than threshold {'{ ... }'}
+                <div>
+                  <span style={{ color: 'var(--syn-keyword)' }}>if</span> score <span style={{ color: 'var(--syn-phrase)', fontWeight: 600 }}>is at least</span> <span style={{ color: 'var(--syn-number)' }}>100</span> {'{'}
                 </div>
+                <div style={{ paddingLeft: '16px' }}>
+                  <span style={{ color: 'var(--syn-keyword)' }}>say</span> <span style={{ color: 'var(--syn-string)' }}>"Qualified"</span>
+                </div>
+                <div>{'}'}</div>
+              </div>
+
+              <div
+                style={{
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  padding: '10px 14px',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--border-subtle)',
+                  fontSize: '0.82rem',
+                  color: 'var(--text-secondary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
+                <span style={{ color: 'var(--accent)', fontWeight: 600 }}>is at least</span>
+                <span style={{ color: 'var(--text-muted)' }}>&rarr;</span>
+                <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>score &gt;= 100</span>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.76rem', marginLeft: 'auto' }}>Inclusive bound</span>
               </div>
             </div>
 
             {/* Card 2: Named Parameter Chains */}
             <div className="card">
-              <h4 style={{ fontSize: '1.1rem', marginBottom: '12px', color: 'var(--text-primary)' }}>
-                Readable Function Declarations
-              </h4>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <h4 style={{ fontSize: '1.1rem', color: 'var(--text-primary)' }}>
+                  Parameter Chains
+                </h4>
+                <span className="badge" style={{ fontSize: '0.72rem' }}>Functions</span>
+              </div>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
-                Function parameters use clear parameter chains that describe input intent.
+                Descriptive parameters that read like spoken English.
               </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div
-                  style={{
-                    background: 'var(--bg-code)',
-                    padding: '10px 14px',
-                    borderRadius: 'var(--radius-sm)',
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '0.88rem',
-                    color: 'var(--accent)',
-                    border: '1px solid var(--border-subtle)',
-                  }}
-                >
-                  function add taking a and b {'{ return a + b }'}
+
+              <div
+                style={{
+                  background: 'var(--bg-code)',
+                  padding: '12px 16px',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--border-medium)',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.88rem',
+                  marginBottom: '10px',
+                }}
+              >
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.05em' }}>
+                  Clarity Syntax
                 </div>
-                <div
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.02)',
-                    padding: '10px 14px',
-                    borderRadius: 'var(--radius-sm)',
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '0.88rem',
-                    color: 'var(--text-muted)',
-                  }}
-                >
-                  function greet taking person {'{ say "Hi, " + person }'}
+                <div>
+                  <span style={{ color: 'var(--syn-keyword)' }}>function</span> apply_tax <span style={{ color: 'var(--syn-keyword)' }}>taking</span> amount <span style={{ color: 'var(--syn-keyword)' }}>and</span> rate {'{'}
                 </div>
+                <div style={{ paddingLeft: '16px' }}>
+                  <span style={{ color: 'var(--syn-keyword)' }}>return</span> amount * (<span style={{ color: 'var(--syn-number)' }}>1</span> + rate)
+                </div>
+                <div>{'}'}</div>
+              </div>
+
+              <div
+                style={{
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  padding: '10px 14px',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--border-subtle)',
+                  fontSize: '0.82rem',
+                  color: 'var(--text-secondary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
+                <span style={{ color: 'var(--accent)', fontWeight: 600 }}>taking a and b</span>
+                <span style={{ color: 'var(--text-muted)' }}>&rarr;</span>
+                <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>(amount, rate)</span>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.76rem', marginLeft: 'auto' }}>Lexical closure</span>
               </div>
             </div>
 
             {/* Card 3: Explicit Loops */}
             <div className="card">
-              <h4 style={{ fontSize: '1.1rem', marginBottom: '12px', color: 'var(--text-primary)' }}>
-                Intuitive Loop Forms
-              </h4>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <h4 style={{ fontSize: '1.1rem', color: 'var(--text-primary)' }}>
+                  Intuitive Loops
+                </h4>
+                <span className="badge" style={{ fontSize: '0.72rem' }}>Iteration</span>
+              </div>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
-                Express intent directly with `for each`, range loops, or `repeat N times`.
+                Iterate intent directly without counter boilerplate.
               </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div
-                  style={{
-                    background: 'var(--bg-code)',
-                    padding: '10px 14px',
-                    borderRadius: 'var(--radius-sm)',
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '0.88rem',
-                    color: 'var(--accent)',
-                    border: '1px solid var(--border-subtle)',
-                  }}
-                >
-                  repeat 3 times {'{ say "Hooray!" }'}
+
+              <div
+                style={{
+                  background: 'var(--bg-code)',
+                  padding: '12px 16px',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--border-medium)',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.88rem',
+                  marginBottom: '10px',
+                }}
+              >
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.05em' }}>
+                  Clarity Syntax
                 </div>
-                <div
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.02)',
-                    padding: '10px 14px',
-                    borderRadius: 'var(--radius-sm)',
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '0.88rem',
-                    color: 'var(--text-muted)',
-                  }}
-                >
-                  for each item in inventory {'{ say item }'}
+                <div>
+                  <span style={{ color: 'var(--syn-keyword)' }}>repeat</span> <span style={{ color: 'var(--syn-number)' }}>3</span> <span style={{ color: 'var(--syn-keyword)' }}>times</span> {'{'}
                 </div>
+                <div style={{ paddingLeft: '16px' }}>
+                  <span style={{ color: 'var(--syn-keyword)' }}>say</span> <span style={{ color: 'var(--syn-string)' }}>"Level up!"</span>
+                </div>
+                <div>{'}'}</div>
+              </div>
+
+              <div
+                style={{
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  padding: '10px 14px',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--border-subtle)',
+                  fontSize: '0.82rem',
+                  color: 'var(--text-secondary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
+                <span style={{ color: 'var(--accent)', fontWeight: 600 }}>repeat N times</span>
+                <span style={{ color: 'var(--text-muted)' }}>&rarr;</span>
+                <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>for (i=0; i&lt;N; i++)</span>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.76rem', marginLeft: 'auto' }}>Zero index noise</span>
               </div>
             </div>
           </div>
@@ -529,7 +583,7 @@ export const Home: React.FC = () => {
               Language Showcase
             </h2>
             <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)' }}>
-              Explore how Clarity 0.5.0 handles everyday programming tasks.
+              Explore how Clarity 0.6.0 handles everyday programming tasks.
             </p>
           </div>
 
@@ -631,7 +685,7 @@ export const Home: React.FC = () => {
                 Active Progress
               </h2>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>
-                Clarity 0.5.0 is the result of continuous, test-driven language design passes.
+                Clarity 0.6.0 is the result of continuous, test-driven language design passes.
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -642,6 +696,7 @@ export const Home: React.FC = () => {
                   { ver: '0.3.0', name: 'Functions & Closures', desc: 'First-class functions, parameter chains, return, lexical closures.' },
                   { ver: '0.4.0', name: 'Data & Readability', desc: 'List/dict/string indexing, for each, repeat N times, comparison phrases.' },
                   { ver: '0.5.0', name: 'Standard Library', desc: 'Built-in Text, Collections, Math, Random, and Files with zero Python exception leaks.' },
+                  { ver: '0.6.0', name: 'Modules & Projects', desc: 'Imports, dot access, conf.clr projects, clarity run/new/test, and a Windows installer.' },
                 ].map((item) => (
                   <div
                     key={item.ver}
@@ -682,9 +737,8 @@ export const Home: React.FC = () => {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {[
-                  { name: '0.6.x — Modules & Projects', desc: 'File imports, namespaces, and structured multi-file project resolution.' },
-                  { name: 'Toolchain Enhancements', desc: 'Project scaffolding (`clarity new`), test harness (`clarity test`), and code formatter.' },
-                  { name: 'Native Standalone Installers', desc: 'Zero-config installers for Windows (.exe), macOS (.pkg/brew), and Linux.' },
+                  { name: 'Toolchain Enhancements', desc: 'Code formatter, static checks, and editor integration.' },
+                  { name: 'Native Packages', desc: 'Standalone distribution for macOS (Homebrew) and Linux.' },
                   { name: 'Clarity Website Launch', desc: 'Interactive web platform and documentation portal at clarity.creebrine.com.' },
                   { name: 'Dedicated Clarity Editor', desc: 'Lightweight development environment with real-time parse diagnostics and auto-completion.' },
                 ].map((item, idx) => (
