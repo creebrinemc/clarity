@@ -1,266 +1,213 @@
 import React from 'react';
-import { CheckCircle2, Clock, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, CheckCircle2, Clock3, GitBranch, Sparkles } from 'lucide-react';
 import { SEO } from '../components/SEO';
+
+type Status = 'shipped' | 'development' | 'planned';
 
 interface Milestone {
   version: string;
   title: string;
-  status: 'completed' | 'in-progress' | 'planned';
+  status: Status;
   description: string;
   highlights: string[];
+  footnote?: string;
 }
 
 const MILESTONES: Milestone[] = [
   {
     version: '0.1.0',
-    title: 'Core Language Foundation',
-    status: 'completed',
-    description: 'Initial language prototype establishing variable bindings, numeric evaluation, operator precedence, and basic output.',
-    highlights: [
-      '`set ... to ...` variable assignments',
-      'Arithmetic operators (+, -, *, /, %)',
-      '`say` output statement',
-      'Source-span tracking for error diagnostics',
-    ],
+    title: 'Core language foundation',
+    status: 'shipped',
+    description: 'The initial language established the foundations for expressing and evaluating programs.',
+    highlights: ['Variable bindings with set … to …', 'Arithmetic and operator precedence', 'say output statement', 'Source spans for useful diagnostics'],
   },
   {
     version: '0.1.1',
-    title: 'Foundation Hardening',
-    status: 'completed',
-    description: 'Lexer hardening, comment handling, and diagnostic error improvements.',
-    highlights: [
-      'Line comment support with `#`',
-      'Unary operators (`not`, `-`, `+`)',
-      'Accurate column and line diagnostic coordinates',
-    ],
+    title: 'Foundation hardening',
+    status: 'shipped',
+    description: 'Lexer and diagnostic improvements made the initial language more robust.',
+    highlights: ['Line comments with #', 'Unary operators and logical not', 'Improved line and column diagnostics'],
   },
   {
     version: '0.2.0',
-    title: 'Control Flow',
-    status: 'completed',
-    description: 'Branching logic, multi-iteration loops, and loop control statements.',
-    highlights: [
-      '`if / else if / else` conditional blocks',
-      '`while` loop evaluation',
-      'Numeric range loops (`for i from start to end [step]`)',
-      '`break` and `continue` control flow signals',
-    ],
+    title: 'Control flow',
+    status: 'shipped',
+    description: 'Programs gained branching, loops, and explicit loop control.',
+    highlights: ['if / else if / else', 'while and numeric range loops', 'break and continue'],
   },
   {
     version: '0.3.0',
-    title: 'Functions & Closures',
-    status: 'completed',
-    description: 'First-class callable functions, explicit return statements, and lexical closure captures.',
-    highlights: [
-      'Function declarations with named parameter chains (`taking a and b`)',
-      'First-class functions (assignable, passable, returnable)',
-      'Lexical closure scope chains',
-      'Direct and mutual recursion',
-    ],
+    title: 'Functions and closures',
+    status: 'shipped',
+    description: 'Clarity added first-class functions and lexical closure behavior.',
+    highlights: ['taking … and … parameter chains', 'First-class functions and return values', 'Lexical closures, recursion, and nested functions'],
   },
   {
     version: '0.4.0',
-    title: 'Data & Readability',
-    status: 'completed',
-    description: 'Collection structures, 0-based indexing, natural English comparison aliases, and repeat loops.',
-    highlights: [
-      '0-based list and dictionary indexing (`items[0]`, `dict["key"]`)',
-      'Indexed assignments on mutable collections',
-      'English comparison phrases (`is at least`, `is greater than`, etc.)',
-      '`for each` loops and `repeat N times` loops',
-    ],
+    title: 'Data and readability',
+    status: 'shipped',
+    description: 'Collections and natural-language comparison aliases made the language more expressive.',
+    highlights: ['Lists, dictionaries, and 0-based indexing', 'Indexed mutation and dot member access foundations', 'is at least / is greater than comparison phrases', 'for each and repeat N times'],
   },
   {
     version: '0.5.0',
-    title: 'Standard Library',
-    status: 'completed',
-    description: 'Built-in standard library across Text, Collections, Math, Random, and Files with strict Clarity error isolation.',
-    highlights: [
-      'Text manipulation (`trim`, `uppercase`, `split`, `join`, `replace`)',
-      'Non-mutating `sort` and `reverse` collection functions',
-      'Mathematical functions (`abs`, `floor`, `ceil`, `round`, `min`, `max`, `sqrt`, `power`)',
-      'Random generation and choice (`random`, `choose`)',
-      'UTF-8 filesystem operations (`read_file`, `write_file`, `file_exists`)',
-      'Zero Python exception leaks; pure Clarity runtime diagnostics',
-    ],
+    title: 'Standard library',
+    status: 'shipped',
+    description: 'A built-in library added practical text, collection, math, random, and filesystem operations.',
+    highlights: ['Text and collection helpers', 'Math operations and random selection', 'UTF-8 filesystem operations', 'Clarity diagnostics instead of leaked host exceptions'],
   },
   {
     version: '0.6.0',
-    title: 'Modules & Project System',
-    status: 'completed',
-    description: 'Module imports, dot member access, static project manifests, a project-aware CLI, and native testing.',
-    highlights: [
-      '`import "path" as name` and `from "path" import ...` with private `_` names',
-      'Dot member access for modules and dictionaries (`fmt.title`, `user.name`)',
-      'Static `conf.clr` project manifest',
-      '`clarity run`, `clarity new`, and `clarity test` commands',
-      '`assert` and `assert_equal` built-ins',
-      'Standalone runtime and Windows installer configuration',
-    ],
+    title: 'Modules and project system',
+    status: 'shipped',
+    description: 'The 0.6.0 release introduced modular programs and a project-aware workflow.',
+    highlights: ['import and from … import with module privacy', 'Static conf.clr project manifest', 'clarity run, clarity new, and clarity test', 'assert / assert_equal and standalone Windows installer'],
   },
   {
-    version: 'Toolchain',
-    title: 'Developer Tooling',
-    status: 'planned',
-    description: 'Project scaffolding and testing shipped in 0.6.0. Formatting, static checks, and editor support are next.',
+    version: '0.7.0',
+    title: 'Developer toolchain',
+    status: 'development',
+    description: 'The active development milestone expands Clarity from a language with a CLI into a language with a connected developer workflow.',
     highlights: [
-      '`clarity new` project generator (0.6.0)',
-      '`clarity test` native test runner (0.6.0)',
-      'Canonical code formatter and static checks (planned)',
-      'Language server and editor integration (planned)',
+      'AST-based formatter: clarity format, with check and JSON modes',
+      'Static analysis: clarity check without executing the program',
+      'Language server: clarity lsp --stdio, including diagnostics, completion, hover, definition, symbols, and formatting',
+      'VS Code integration implemented and tested in development work',
+      'JetBrains plugin implemented with LSP4IJ, CLI actions, settings, and a Clarity tool window',
     ],
-  },
-  {
-    version: 'Installers',
-    title: 'Native OS Distribution',
-    status: 'in-progress',
-    description: 'Zero-configuration standalone setup packages bundling the runtime for all major operating systems.',
-    highlights: [
-      'Windows `.exe` installer with PATH and `.clr` file association (0.6.0)',
-      'macOS Homebrew distribution (planned)',
-      'Linux native packages and portable builds (planned)',
-    ],
-  },
-  {
-    version: 'Website',
-    title: 'Web Platform Launch',
-    status: 'in-progress',
-    description: 'Official documentation and ecosystem portal at clarity.creebrine.com.',
-    highlights: [
-      'Interactive documentation and syntax showcase',
-      'Downloads hub and version release notes',
-      'Community resources and guides',
-    ],
-  },
-  {
-    version: 'Editor',
-    title: 'Dedicated Clarity IDE',
-    status: 'planned',
-    description: 'Tailored development environment for writing, inspecting, and debugging Clarity code.',
-    highlights: [
-      'Custom syntax colorization and real-time parse diagnostics',
-      'Intelligent autocomplete for builtins and user declarations',
-      'Integrated runner and output terminal',
-    ],
+    footnote: 'Development status: the work has been implemented and automated checks have passed locally. The JetBrains plugin still needs interactive IDE smoke testing; the integrations and tooling have not yet been included in a public Clarity release.',
   },
 ];
 
-export const Roadmap: React.FC = () => {
-  return (
-    <div className="container" style={{ padding: '50px 24px 80px', maxWidth: '860px' }}>
-      <SEO
-        title="Clarity Roadmap"
-        description="Explore the past, present, and future development milestones for the Clarity programming language and ecosystem."
-        canonicalPath="/roadmap"
-      />
-      <div style={{ textAlign: 'center', marginBottom: '44px' }}>
-        <span className="badge" style={{ marginBottom: '12px' }}>
-          Milestone Tracker
-        </span>
-        <h1 className="page-title">Project Roadmap</h1>
-        <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)' }}>
-          Transparent overview of completed language milestones and planned ecosystem components.
-        </p>
-      </div>
+const DIRECTION = [
+  {
+    title: 'Cross-platform distribution',
+    status: 'Planned',
+    description: 'Native macOS and Linux packages to complement the existing Windows installer. Source installation remains available today.',
+  },
+  {
+    title: 'A richer learning layer',
+    status: 'Planned',
+    description: 'Teach Me Clarity, interactive learning, project-aware explanations, and source-grounded LEARN.md guides.',
+  },
+  {
+    title: 'An integrated development environment',
+    status: 'Long-term direction',
+    description: 'A unified workspace combining editing, language intelligence, an AI development agent, project workflows, debugging, builds, tests, and packaging.',
+  },
+  {
+    title: 'Connected ecosystem services',
+    status: 'Long-term direction',
+    description: 'Clarity Bridge for language interoperability, Clarity Remote for authorized remote workflows, and a sandboxed browser Playground.',
+  },
+];
 
-      {/* Timeline List */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        {MILESTONES.map((m) => {
-          const isDone = m.status === 'completed';
-          const isInProgress = m.status === 'in-progress';
-          return (
-            <div
-              key={m.version}
-              className="card"
-              style={{
-                borderLeft: `4px solid ${
-                  isDone ? 'var(--accent-emerald)' : isInProgress ? 'var(--accent)' : 'var(--border-medium)'
-                }`,
-                padding: '24px 28px',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: '10px',
-                  marginBottom: '12px',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '1rem',
-                      fontWeight: 700,
-                      color: isDone ? 'var(--accent-emerald)' : 'var(--text-primary)',
-                    }}
-                  >
-                    {m.version}
-                  </span>
-                  <span style={{ color: 'var(--text-muted)' }}>—</span>
-                  <h3 style={{ fontSize: '1.2rem', color: 'var(--text-primary)' }}>
-                    {m.title}
-                  </h3>
-                </div>
-
-                <span
-                  className={`badge ${
-                    isDone ? 'badge-success' : isInProgress ? '' : 'badge-warning'
-                  }`}
-                  style={{ fontSize: '0.72rem' }}
-                >
-                  {isDone ? (
-                    <CheckCircle2 size={12} />
-                  ) : isInProgress ? (
-                    <Sparkles size={12} />
-                  ) : (
-                    <Clock size={12} />
-                  )}
-                  {isDone ? 'Completed' : isInProgress ? 'In Progress' : 'Planned'}
-                </span>
-              </div>
-
-              <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '16px', lineHeight: 1.6 }}>
-                {m.description}
-              </p>
-
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-                  gap: '8px',
-                }}
-              >
-                {m.highlights.map((h, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      fontSize: '0.85rem',
-                      color: 'var(--text-muted)',
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: '4px',
-                        height: '4px',
-                        borderRadius: '50%',
-                        background: isDone ? 'var(--accent-emerald)' : 'var(--accent)',
-                      }}
-                    />
-                    <span>{h}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
+const statusLabel: Record<Status, string> = {
+  shipped: 'Shipped',
+  development: 'In development',
+  planned: 'Planned',
 };
+
+export const Roadmap: React.FC = () => (
+  <div className="roadmap-page">
+    <SEO
+      title="Clarity Roadmap"
+      description="See what has shipped in Clarity, what is being developed for 0.7.0, and the longer-term direction of the ecosystem."
+      canonicalPath="/roadmap"
+    />
+    <section className="roadmap-hero">
+      <div className="container">
+        <span className="section-kicker">TRANSPARENT PROGRESS</span>
+        <h1 className="page-hero-title">The roadmap, without the guesswork.</h1>
+        <p>Clarity's roadmap separates released capabilities from work in development and ideas for the longer term. A planned item is a direction—not a release promise.</p>
+        <div className="roadmap-legend" aria-label="Roadmap status definitions">
+          <span className="status-pill status-shipped"><CheckCircle2 size={14} /> Shipped</span>
+          <span className="status-pill status-development"><GitBranch size={14} /> In development</span>
+          <span className="status-pill status-planned"><Clock3 size={14} /> Planned</span>
+        </div>
+      </div>
+    </section>
+
+    <section className="section roadmap-section" aria-labelledby="release-history-title">
+      <div className="container roadmap-container">
+        <div className="roadmap-section-heading">
+          <div>
+            <span className="section-kicker">RELEASE HISTORY + ACTIVE WORK</span>
+            <h2 id="release-history-title">From language core to developer toolchain.</h2>
+          </div>
+          <p>Milestones are shown by actual project state. 0.6.0 is the latest published release represented here; 0.7.0 remains development work.</p>
+        </div>
+
+        <div className="milestone-list">
+          {MILESTONES.map((milestone) => (
+            <article className={'milestone-card milestone-' + milestone.status} key={milestone.version}>
+              <div className="milestone-rail" aria-hidden="true"><span /></div>
+              <div className="milestone-body">
+                <div className="milestone-topline">
+                  <span className="milestone-version">{milestone.version}</span>
+                  <span className={'status-pill status-' + milestone.status}>
+                    {milestone.status === 'shipped' ? <CheckCircle2 size={14} /> : milestone.status === 'development' ? <Sparkles size={14} /> : <Clock3 size={14} />}
+                    {statusLabel[milestone.status]}
+                  </span>
+                </div>
+                <h3>{milestone.title}</h3>
+                <p className="milestone-description">{milestone.description}</p>
+                <ul className="milestone-highlights">
+                  {milestone.highlights.map((item) => <li key={item}>{item}</li>)}
+                </ul>
+                {milestone.footnote && <p className="milestone-footnote">{milestone.footnote}</p>}
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="development-callout">
+          <div className="callout-icon"><GitBranch size={20} /></div>
+          <div>
+            <span className="section-kicker">IMPORTANT RELEASE DISTINCTION</span>
+            <h3>Implemented does not mean released.</h3>
+            <p>The formatter, checker, LSP, and IDE integrations are part of active 0.7.0 development. They should be treated as development builds until a tagged release and distribution are published.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section className="section roadmap-direction" aria-labelledby="direction-title">
+      <div className="container">
+        <div className="roadmap-section-heading">
+          <div>
+            <span className="section-kicker">BEYOND THE CURRENT MILESTONE</span>
+            <h2 id="direction-title">Where the ecosystem can go next.</h2>
+          </div>
+          <p>These themes describe the intended direction. Their order, scope, and names may change as the core language and tooling mature.</p>
+        </div>
+        <div className="direction-grid">
+          {DIRECTION.map((item) => (
+            <article className="direction-card" key={item.title}>
+              <div className="direction-status">{item.status}</div>
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section className="roadmap-footer">
+      <div className="container roadmap-footer-inner">
+        <div>
+          <span className="section-kicker">FOLLOW THE IMPLEMENTATION</span>
+          <h2>See the code and the release history.</h2>
+          <p>The repository and changelog are the source of truth for what is publicly available.</p>
+        </div>
+        <div className="hero-actions">
+          <a className="btn btn-primary" href="https://github.com/creebrinemc/clarity" target="_blank" rel="noopener noreferrer">Open GitHub <ArrowRight size={15} /></a>
+          <Link className="btn btn-secondary" to="/install">Get the released version</Link>
+        </div>
+      </div>
+    </section>
+  </div>
+);
+
+export default Roadmap;

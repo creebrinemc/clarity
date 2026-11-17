@@ -284,7 +284,7 @@ set items[0] to "Magic Sword"
 
 say items[0]  # "Magic Sword"
 
-set player to { name: "Creebrine", hp: 100 }
+set player to { name: "Avery", hp: 100 }
 say player["name"]
 set player["hp"] to 90`}
             filename="data.clr"
@@ -471,8 +471,7 @@ say "Rolled a die (1-6): " + roll`}
               </h3>
               <CodeBlock
                 code={`set user to {
-    name: "Creebrine",
-    age: 14,
+    name: "Avery",
     scores: [95, 100]
 }
 
@@ -484,7 +483,7 @@ repeat 2 times {
     say "Great work!"
 } `}
                 filename="data_access.clr"
-                output={`Creebrine passed with distinction!\nGreat work!\nGreat work!`}
+                output={`Avery passed with distinction!\nGreat work!\nGreat work!`}
               />
             </div>
           </div>

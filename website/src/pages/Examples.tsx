@@ -29,12 +29,12 @@ const EXAMPLES: ExampleItem[] = [
     title: 'Variables & String Concatenation',
     filename: 'variables.clr',
     description: 'Declaring variables with `set ... to ...` and concatenating strings.',
-    code: `set name to "Creebrine"
-set age to 14
+    code: `set name to "Avery"
+set level to 42
 
 say "Name: " + name
-say "Age: " + age`,
-    output: `Name: Creebrine\nAge: 14`,
+say "Level: " + level`,
+    output: `Name: Avery\nLevel: 42`,
   },
   {
     id: 'calculator',
@@ -96,7 +96,7 @@ for num from 1 to 5 step 2 {
     say "Hello, " + name
 }
 
-greet("Creebrine")
+greet("Avery")
 
 function add taking a and b {
     return a + b
@@ -116,7 +116,7 @@ function make_counter {
 set counter to make_counter()
 say "Count: " + counter()
 say "Count: " + counter()`,
-    output: `Hello, Creebrine\nResult: 30\nCount: 1\nCount: 2`,
+    output: `Hello, Avery\nResult: 30\nCount: 1\nCount: 2`,
   },
   {
     id: 'data_access',
@@ -131,14 +131,14 @@ set items[1] to "Magic Shield"
 say "Updated inventory: " + items
 
 set user to {
-    name: "Creebrine",
-    age: 14,
+    name: "Avery",
+    level: 42,
     scores: [95, 100]
 }
 
 say "User: " + user["name"]
-set user["age"] to 15
-say "New age: " + user["age"]
+set user["level"] to 43
+say "New level: " + user["level"]
 
 # Nested Indexing
 say "Top score: " + user["scores"][1]
@@ -147,7 +147,7 @@ say "Top score: " + user["scores"][1]
 repeat 3 times {
     say "Hooray!"
 }`,
-    output: `First item: Sword\nUpdated inventory: ["Sword", "Magic Shield", "Potion"]\nUser: Creebrine\nNew age: 15\nTop score: 100\nHooray!\nHooray!\nHooray!`,
+    output: `First item: Sword\nUpdated inventory: ["Sword", "Magic Shield", "Potion"]\nUser: Avery\nNew level: 43\nTop score: 100\nHooray!\nHooray!\nHooray!`,
   },
 
   // Standard Library

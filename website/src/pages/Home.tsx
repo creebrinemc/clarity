@@ -1,834 +1,422 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowRight,
-  BookOpen,
-  Download,
-  CheckCircle2,
-  Sparkles,
-  Layers,
-  Compass,
-  Cpu,
-  Terminal,
+  ArrowRight, ArrowUpRight, BookOpen, Braces, CheckCircle2, Code2,
+  Compass, Cpu, GraduationCap, Layers, Monitor, Network, Package,
+  ShieldCheck, Sparkles, Terminal, Workflow, Zap,
 } from 'lucide-react';
 import { GithubIcon } from '../components/GithubIcon';
 import { CodeBlock } from '../components/CodeBlock';
-import { EcosystemDiagram } from '../components/EcosystemDiagram';
 import { SEO } from '../components/SEO';
 
-const HERO_CODE = `# hello.clr
-set user to {
-    name: "Creebrine",
-    score: 100
-}
-
-function greet taking person {
-    say "Hello, " + person["name"] + "!"
-}
-
-if user["score"] is at least 100 {
-    greet(user)
-}`;
-
-const SHOWCASE_TABS = [
+const SYNTAX_TABS = [
   {
-    id: 'hello',
-    title: 'Hello & Variables',
-    filename: 'variables.clr',
-    code: `set name to "Creebrine"
-set level to 42
-
-say "Welcome back, " + name
-say "Current level: " + level`,
-    output: `Welcome back, Creebrine\nCurrent level: 42`,
-    description: 'Natural variable assignments with the nearest-binding scoping rule.',
+    id: 'basics',
+    label: 'Readable syntax',
+    filename: 'welcome.clr',
+    code: [
+      'set project to "Clarity"',
+      'set score to 96',
+      '',
+      'if score is at least 90 {',
+      '    say "Ready to build with " + project',
+      '}',
+    ].join('\n'),
+    output: 'Ready to build with Clarity',
+    note: 'English-inspired phrases make intent easier to scan, while the parser keeps every expression precise.',
   },
   {
     id: 'functions',
-    title: 'Functions & Closures',
-    filename: 'closures.clr',
-    code: `function make_adder taking base {
-    function add taking num {
-        return base + num
-    }
-    return add
-}
-
-set add_five to make_adder(5)
-say add_five(10)
-say add_five(20)`,
-    output: `15\n25`,
-    description: 'First-class functions with lexical closures and named parameter chains.',
+    label: 'Functions',
+    filename: 'pricing.clr',
+    code: [
+      'function apply_discount taking price and rate {',
+      '    return price * (1 - rate)',
+      '}',
+      '',
+      'set final_price to apply_discount(120, 0.15)',
+      'say final_price',
+    ].join('\n'),
+    output: '102',
+    note: 'Named parameter chains and first-class functions give structure to reusable logic.',
   },
   {
     id: 'collections',
-    title: 'Data & Indexing',
+    label: 'Data & collections',
     filename: 'inventory.clr',
-    code: `set hero to {
-    name: "Creebrine",
-    items: ["Sword", "Shield"]
-}
-
-push "Potion" to hero["items"]
-set hero["items"][0] to "Master Sword"
-
-say hero["name"] + " inventory:"
-for each item in hero["items"] {
-    say "- " + item
-}`,
-    output: `Creebrine inventory:\n- Master Sword\n- Shield\n- Potion`,
-    description: '0-based indexing on lists, strings, and dictionary structures.',
+    code: [
+      'set inventory to {',
+      '    items: ["Keyboard", "Mouse"],',
+      '    count: 2',
+      '}',
+      '',
+      'push "Monitor" to inventory["items"]',
+      'say inventory.items',
+    ].join('\n'),
+    output: '[Keyboard, Mouse, Monitor]',
+    note: 'Lists, dictionaries, indexed mutation, and dot access make everyday data work direct.',
   },
   {
-    id: 'control_flow',
-    title: 'Control Flow',
-    filename: 'loops.clr',
-    code: `set score to 95
+    id: 'projects',
+    label: 'Projects',
+    filename: 'conf.clr',
+    code: [
+      '{',
+      '    name: "starter-project",',
+      '    version: "1.0.0",',
+      '    entry: "main.clr",',
+      '}',
+      '',
+      '# Run and test from the project root',
+      '# clarity run',
+      '# clarity test',
+    ].join('\n'),
+    output: 'Project manifest · conf.clr',
+    note: 'A static project manifest connects source files to repeatable run and test workflows.',
+  },
+];
 
-if score is at least 90 {
-    say "Grade: Excellent!"
-}
-
-repeat 3 times {
-    say "Level up!"
-}`,
-    output: `Grade: Excellent!\nLevel up!\nLevel up!\nLevel up!`,
-    description: 'Readable English comparison phrases and intuitive repeat loops.',
+const PILLARS = [
+  {
+    icon: <Compass size={22} />,
+    title: 'Readable without being vague',
+    copy: 'Clarity favors expressive phrases such as “is at least” and “taking … and …”. The syntax aims to explain intent without turning every line into a sentence.',
   },
   {
-    id: 'stdlib',
-    title: 'Standard Library',
-    filename: 'stdlib.clr',
-    code: `set raw_title to "  clarity language  "
-say uppercase(trim(raw_title))
+    icon: <ShieldCheck size={22} />,
+    title: 'A real language underneath',
+    copy: 'Readable syntax is backed by a lexer, parser, AST, explicit runtime semantics, predictable scope rules, and diagnostics with source locations.',
+  },
+  {
+    icon: <Workflow size={22} />,
+    title: 'Useful developer workflows',
+    copy: 'The language is paired with a CLI, project manifests, modules, a native test runner, a standard library, and a growing toolchain.',
+  },
+  {
+    icon: <Layers size={22} />,
+    title: 'Built as an ecosystem',
+    copy: 'Editor support and learning tools share the language server and core semantics instead of becoming disconnected one-off implementations.',
+  },
+];
 
-set scores to [88, 42, 95, 70]
-say "Sorted: " + sort(scores)
-say "Square root: " + sqrt(81)
-say "Dice roll: " + random(1, 6)`,
-    output: `CLARITY LANGUAGE\nSorted: [42, 70, 88, 95]\nSquare root: 9\nDice roll: 4`,
-    description: 'Built-in functions for text, sorting, math, random, and files with strict error guarantees.',
+const AVAILABLE = [
+  {
+    icon: <Braces size={20} />,
+    title: 'Language core',
+    status: 'Released in 0.6.0',
+    detail: 'Variables, control flow, functions, closures, collections, modules, imports, dot access, and a practical standard library.',
+  },
+  {
+    icon: <Terminal size={20} />,
+    title: 'CLI & project workflow',
+    status: 'Released in 0.6.0',
+    detail: 'Run source files and projects, scaffold with clarity new, and execute project tests through clarity test.',
+  },
+  {
+    icon: <Package size={20} />,
+    title: 'Standalone distribution',
+    status: 'Windows available',
+    detail: 'A standalone Windows installer is shipped. macOS and Linux native packages remain future work.',
+  },
+  {
+    icon: <Code2 size={20} />,
+    title: 'Developer tooling',
+    status: '0.7.0 development',
+    detail: 'The formatter, static checker, language server, and editor integrations are being developed and verified locally; they are not part of the 0.6.0 release.',
+  },
+];
+
+const VISION = [
+  {
+    icon: <Network size={22} />,
+    name: 'Clarity Bridge',
+    status: 'Planned',
+    description: 'Interoperability between languages through a shared intermediate representation, with semantic differences made explicit rather than hidden.',
+  },
+  {
+    icon: <Monitor size={22} />,
+    name: 'Clarity Remote',
+    status: 'Planned',
+    description: 'A secure way to send authorized development tasks to your own computers, queue work while a device is offline, and review what ran.',
+  },
+  {
+    icon: <GraduationCap size={22} />,
+    name: 'Teach Me Clarity',
+    status: 'Planned',
+    description: 'An adaptive learning experience grounded in the language and the project being explored, including source-aware guides such as LEARN.md.',
+  },
+  {
+    icon: <Zap size={22} />,
+    name: 'Clarity Playground',
+    status: 'Planned',
+    description: 'A browser-based, sandboxed place to write and run Clarity snippets, understand diagnostics, and share small experiments.',
   },
 ];
 
 export const Home: React.FC = () => {
-  const [activeTab, setActiveTab] = useState(SHOWCASE_TABS[0]);
+  const [activeTab, setActiveTab] = useState('basics');
+  const activeExample = SYNTAX_TABS.find((tab) => tab.id === activeTab) ?? SYNTAX_TABS[0];
+
+  const handleTabKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const currentIndex = SYNTAX_TABS.findIndex((tab) => tab.id === activeTab);
+    let nextIndex = currentIndex;
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = (currentIndex + 1) % SYNTAX_TABS.length;
+    else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = (currentIndex - 1 + SYNTAX_TABS.length) % SYNTAX_TABS.length;
+    else if (event.key === 'Home') nextIndex = 0;
+    else if (event.key === 'End') nextIndex = SYNTAX_TABS.length - 1;
+    else return;
+    event.preventDefault();
+    setActiveTab(SYNTAX_TABS[nextIndex].id);
+    document.getElementById('syntax-tab-' + SYNTAX_TABS[nextIndex].id)?.focus();
+  };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
+    <div className="home-page">
       <SEO
         title="Clarity — Code that speaks for itself"
-        description="Clarity is a general-purpose programming language designed around readable, expressive syntax without sacrificing structural certainty or future power."
+        description="Meet Clarity: a general-purpose programming language built around readable syntax, predictable semantics, and an expanding developer ecosystem."
         canonicalPath="/"
       />
-      {/* ====================================================================
-          HERO SECTION
-          ==================================================================== */}
-      <section
-        style={{
-          padding: '80px 0 60px',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
+
+      <section className="site-hero">
         <div className="container">
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '48px',
-              alignItems: 'center',
-            }}
-          >
-            {/* Hero Left Content */}
-            <div style={{ maxWidth: '580px' }}>
-              <div
-                className="badge"
-                style={{
-                  marginBottom: '20px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                }}
-              >
-                <Sparkles size={13} />
-                <span>Clarity 0.6.0 Released</span>
+          <div className="hero-layout">
+            <div className="hero-copy">
+              <div className="eyebrow">
+                <span className="eyebrow-dot" aria-hidden="true" />
+                A LANGUAGE. A TOOLCHAIN. A BIGGER IDEA.
               </div>
-
-              <h1
-                style={{
-                  fontSize: 'clamp(2.5rem, 5vw, 3.8rem)',
-                  fontWeight: 800,
-                  lineHeight: 1.1,
-                  marginBottom: '20px',
-                  letterSpacing: '-0.03em',
-                }}
-              >
-                Code that speaks{' '}
-                <span
-                  style={{
-                    background: 'var(--accent-gradient)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                  }}
-                >
-                  for itself.
-                </span>
+              <div className="hero-release">
+                <span className="release-chip"><CheckCircle2 size={13} /> 0.6.0 released</span>
+                <span className="release-separator" aria-hidden="true">/</span>
+                <span>0.7.0 in development</span>
+              </div>
+              <h1 className="hero-title">
+                Make the <span>intent</span> obvious.
               </h1>
-
-              <p
-                style={{
-                  fontSize: '1.18rem',
-                  color: 'var(--text-secondary)',
-                  lineHeight: 1.6,
-                  marginBottom: '32px',
-                }}
-              >
-                Clarity is a general-purpose programming language designed to make code easier to understand without sacrificing structure or future power.
+              <p className="hero-description">
+                Clarity is a general-purpose programming language designed to read like structured English without becoming unnecessarily verbose. It pairs expressive syntax with a real language engine—and a developer ecosystem designed to grow around it.
               </p>
-
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '14px',
-                  marginBottom: '36px',
-                }}
-              >
-                <Link to="/install" className="btn btn-primary">
-                  <Download size={17} />
-                  <span>Get Clarity</span>
-                  <ArrowRight size={15} />
+              <div className="hero-actions">
+                <Link to="/docs/getting-started" className="btn btn-primary">
+                  <BookOpen size={17} /> Start with Clarity <ArrowRight size={15} />
                 </Link>
-
-                <Link to="/docs" className="btn btn-secondary">
-                  <BookOpen size={17} />
-                  <span>Read the Docs</span>
+                <Link to="/install" className="btn btn-secondary">
+                  <Package size={17} /> Installation
                 </Link>
-
-                <a
-                  href="https://github.com/creebrinemc/clarity"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-ghost"
-                >
-                  <GithubIcon size={17} />
-                  <span>GitHub</span>
+                <a href="https://github.com/creebrinemc/clarity" target="_blank" rel="noopener noreferrer" className="btn btn-ghost">
+                  <GithubIcon size={17} /> Source code <ArrowUpRight size={14} />
                 </a>
               </div>
-
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '24px',
-                  paddingTop: '20px',
-                  borderTop: '1px solid var(--border-subtle)',
-                  fontSize: '0.85rem',
-                  color: 'var(--text-muted)',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <CheckCircle2 size={15} color="#10b981" />
-                  <span>235 Passing Tests</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <CheckCircle2 size={15} color="#10b981" />
-                  <span>Zero Leaked Host Errors</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <CheckCircle2 size={15} color="#10b981" />
-                  <span>MIT Open Source</span>
-                </div>
+              <div className="hero-facts" aria-label="Project facts">
+                <div><strong>.clr</strong><span>source files</span></div>
+                <div><strong>conf.clr</strong><span>project manifest</span></div>
+                <div><strong>MIT</strong><span>open source</span></div>
               </div>
             </div>
-
-            {/* Hero Right Code Visual */}
-            <div>
+            <div className="hero-code">
+              <div className="hero-code-heading">
+                <span className="hero-code-label"><span className="eyebrow-dot" aria-hidden="true" /> A small look at the language</span>
+                <span className="hero-code-extension">.clr</span>
+              </div>
               <CodeBlock
-                code={HERO_CODE}
-                filename="hello.clr"
-                output="Hello, Creebrine!"
-                showLineNumbers={true}
+                code={[
+                  '# welcome.clr',
+                  'set project to {',
+                  '    name: "Clarity",',
+                  '    score: 96',
+                  '}',
+                  '',
+                  'function welcome taking item {',
+                  '    say "Building with " + item.name',
+                  '}',
+                  '',
+                  'if project.score is at least 90 {',
+                  '    welcome(project)',
+                  '}',
+                ].join('\n')}
+                filename="welcome.clr"
+                output="Building with Clarity"
               />
+              <div className="code-caption">
+                <span><CheckCircle2 size={14} /> Structured syntax</span>
+                <span><CheckCircle2 size={14} /> Predictable execution</span>
+              </div>
             </div>
+          </div>
+          <div className="hero-bottomline">
+            <span>Readable by design</span><i aria-hidden="true" />
+            <span>Structured at its core</span><i aria-hidden="true" />
+            <span>Designed to grow</span>
           </div>
         </div>
       </section>
 
-      {/* ====================================================================
-          "WHY CLARITY?" PILLARS SECTION
-          ==================================================================== */}
-      <section className="section" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+      <section className="section" aria-labelledby="why-clarity">
         <div className="container">
-          <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto 56px' }}>
-            <span className="badge" style={{ marginBottom: '12px' }}>
-              Design Philosophy
-            </span>
-            <h2 style={{ fontSize: '2.2rem', marginBottom: '16px' }}>
-              Why Clarity?
-            </h2>
-            <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)' }}>
-              Clarity should read like structured English without becoming unnecessarily verbose.
+          <div className="section-heading">
+            <span className="section-kicker">THE REASON IT EXISTS</span>
+            <h2 id="why-clarity">Clarity is more than friendly-looking syntax.</h2>
+            <p>
+              A language should help people understand what a program is doing—not just make its punctuation look different. Clarity brings readability, explicit structure, and practical developer workflows into one coherent design.
             </p>
           </div>
-
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-              gap: '20px',
-            }}
-          >
-            <div className="card">
-              <div
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '8px',
-                  background: 'rgba(56, 189, 248, 0.1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: '16px',
-                  border: '1px solid rgba(56, 189, 248, 0.2)',
-                }}
-              >
-                <Compass size={20} color="#38bdf8" />
-              </div>
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '10px' }}>Readable</h3>
-              <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)' }}>
-                Syntax designed to be understandable at a glance. Programs read naturally for beginners and experienced developers alike.
-              </p>
-            </div>
-
-            <div className="card">
-              <div
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '8px',
-                  background: 'rgba(129, 140, 248, 0.1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: '16px',
-                  border: '1px solid rgba(129, 140, 248, 0.2)',
-                }}
-              >
-                <Layers size={20} color="#818cf8" />
-              </div>
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '10px' }}>Structured</h3>
-              <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)' }}>
-                Natural-language-inspired syntax maintains rigorous computational certainty, strict scoping rules, and predictable semantics.
-              </p>
-            </div>
-
-            <div className="card">
-              <div
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '8px',
-                  background: 'rgba(16, 185, 129, 0.1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: '16px',
-                  border: '1px solid rgba(16, 185, 129, 0.2)',
-                }}
-              >
-                <Cpu size={20} color="#10b981" />
-              </div>
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '10px' }}>General-Purpose</h3>
-              <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)' }}>
-                Intended to grow toward applications, developer tools, games, web backends, and system automation.
-              </p>
-            </div>
-
-            <div className="card">
-              <div
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '8px',
-                  background: 'rgba(244, 114, 182, 0.1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: '16px',
-                  border: '1px solid rgba(244, 114, 182, 0.2)',
-                }}
-              >
-                <Terminal size={20} color="#f472b6" />
-              </div>
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '10px' }}>Built to Grow</h3>
-              <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)' }}>
-                The core language is the heart of an expanding ecosystem of toolchains, native installers, and dedicated editor tools.
-              </p>
-            </div>
+          <div className="pillar-grid">
+            {PILLARS.map((item) => (
+              <article className="pillar-card" key={item.title}>
+                <div className="pillar-icon" aria-hidden="true">{item.icon}</div>
+                <h3>{item.title}</h3>
+                <p>{item.copy}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ====================================================================
-          READABILITY IN ACTION (COMPARISON) SECTION
-          ==================================================================== */}
-      <section
-        className="section"
-        style={{
-          background: 'var(--bg-surface)',
-          borderTop: '1px solid var(--border-subtle)',
-          borderBottom: '1px solid var(--border-subtle)',
-        }}
-      >
+      <section className="section syntax-section" aria-labelledby="syntax-title">
         <div className="container">
-          <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto 48px' }}>
-            <span className="badge" style={{ marginBottom: '12px' }}>
-              Read It Like This
-            </span>
-            <h2 style={{ fontSize: '2.2rem', marginBottom: '16px' }}>
-              Readability by Design
-            </h2>
-            <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)' }}>
-              Clarity replaces cryptographic punctuation with self-documenting syntax without sacrificing structural certainty.
-            </p>
-          </div>
-
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '24px',
-            }}
-          >
-            {/* Card 1: Comparisons */}
-            <div className="card">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <h4 style={{ fontSize: '1.1rem', color: 'var(--text-primary)' }}>
-                  English Comparisons
-                </h4>
-                <span className="badge" style={{ fontSize: '0.72rem' }}>Conditionals</span>
-              </div>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
-                Natural phrases with exact precedence semantics.
-              </p>
-
-              <div
-                style={{
-                  background: 'var(--bg-code)',
-                  padding: '12px 16px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-medium)',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.88rem',
-                  marginBottom: '10px',
-                }}
-              >
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.05em' }}>
-                  Clarity Syntax
-                </div>
-                <div>
-                  <span style={{ color: 'var(--syn-keyword)' }}>if</span> score <span style={{ color: 'var(--syn-phrase)', fontWeight: 600 }}>is at least</span> <span style={{ color: 'var(--syn-number)' }}>100</span> {'{'}
-                </div>
-                <div style={{ paddingLeft: '16px' }}>
-                  <span style={{ color: 'var(--syn-keyword)' }}>say</span> <span style={{ color: 'var(--syn-string)' }}>"Qualified"</span>
-                </div>
-                <div>{'}'}</div>
-              </div>
-
-              <div
-                style={{
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  padding: '10px 14px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-subtle)',
-                  fontSize: '0.82rem',
-                  color: 'var(--text-secondary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}
-              >
-                <span style={{ color: 'var(--accent)', fontWeight: 600 }}>is at least</span>
-                <span style={{ color: 'var(--text-muted)' }}>&rarr;</span>
-                <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>score &gt;= 100</span>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.76rem', marginLeft: 'auto' }}>Inclusive bound</span>
-              </div>
+          <div className="split-heading">
+            <div>
+              <span className="section-kicker">THE LANGUAGE, IN PRACTICE</span>
+              <h2 id="syntax-title">See what the words mean.</h2>
             </div>
-
-            {/* Card 2: Named Parameter Chains */}
-            <div className="card">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <h4 style={{ fontSize: '1.1rem', color: 'var(--text-primary)' }}>
-                  Parameter Chains
-                </h4>
-                <span className="badge" style={{ fontSize: '0.72rem' }}>Functions</span>
-              </div>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
-                Descriptive parameters that read like spoken English.
-              </p>
-
-              <div
-                style={{
-                  background: 'var(--bg-code)',
-                  padding: '12px 16px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-medium)',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.88rem',
-                  marginBottom: '10px',
-                }}
-              >
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.05em' }}>
-                  Clarity Syntax
-                </div>
-                <div>
-                  <span style={{ color: 'var(--syn-keyword)' }}>function</span> apply_tax <span style={{ color: 'var(--syn-keyword)' }}>taking</span> amount <span style={{ color: 'var(--syn-keyword)' }}>and</span> rate {'{'}
-                </div>
-                <div style={{ paddingLeft: '16px' }}>
-                  <span style={{ color: 'var(--syn-keyword)' }}>return</span> amount * (<span style={{ color: 'var(--syn-number)' }}>1</span> + rate)
-                </div>
-                <div>{'}'}</div>
-              </div>
-
-              <div
-                style={{
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  padding: '10px 14px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-subtle)',
-                  fontSize: '0.82rem',
-                  color: 'var(--text-secondary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}
-              >
-                <span style={{ color: 'var(--accent)', fontWeight: 600 }}>taking a and b</span>
-                <span style={{ color: 'var(--text-muted)' }}>&rarr;</span>
-                <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>(amount, rate)</span>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.76rem', marginLeft: 'auto' }}>Lexical closure</span>
-              </div>
-            </div>
-
-            {/* Card 3: Explicit Loops */}
-            <div className="card">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <h4 style={{ fontSize: '1.1rem', color: 'var(--text-primary)' }}>
-                  Intuitive Loops
-                </h4>
-                <span className="badge" style={{ fontSize: '0.72rem' }}>Iteration</span>
-              </div>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
-                Iterate intent directly without counter boilerplate.
-              </p>
-
-              <div
-                style={{
-                  background: 'var(--bg-code)',
-                  padding: '12px 16px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-medium)',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.88rem',
-                  marginBottom: '10px',
-                }}
-              >
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.05em' }}>
-                  Clarity Syntax
-                </div>
-                <div>
-                  <span style={{ color: 'var(--syn-keyword)' }}>repeat</span> <span style={{ color: 'var(--syn-number)' }}>3</span> <span style={{ color: 'var(--syn-keyword)' }}>times</span> {'{'}
-                </div>
-                <div style={{ paddingLeft: '16px' }}>
-                  <span style={{ color: 'var(--syn-keyword)' }}>say</span> <span style={{ color: 'var(--syn-string)' }}>"Level up!"</span>
-                </div>
-                <div>{'}'}</div>
-              </div>
-
-              <div
-                style={{
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  padding: '10px 14px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-subtle)',
-                  fontSize: '0.82rem',
-                  color: 'var(--text-secondary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}
-              >
-                <span style={{ color: 'var(--accent)', fontWeight: 600 }}>repeat N times</span>
-                <span style={{ color: 'var(--text-muted)' }}>&rarr;</span>
-                <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>for (i=0; i&lt;N; i++)</span>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.76rem', marginLeft: 'auto' }}>Zero index noise</span>
-              </div>
-            </div>
+            <p>Clarity uses familiar ideas with deliberate syntax. Explore a few pieces of the language, then open the examples and documentation to go deeper.</p>
           </div>
-        </div>
-      </section>
-
-      {/* ====================================================================
-          INTERACTIVE LANGUAGE SHOWCASE
-          ==================================================================== */}
-      <section className="section">
-        <div className="container">
-          <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto 40px' }}>
-            <span className="badge" style={{ marginBottom: '12px' }}>
-              Hands-On
-            </span>
-            <h2 style={{ fontSize: '2.2rem', marginBottom: '16px' }}>
-              Language Showcase
-            </h2>
-            <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)' }}>
-              Explore how Clarity 0.6.0 handles everyday programming tasks.
-            </p>
-          </div>
-
-          {/* Showcase Tabs */}
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '8px',
-              justifyContent: 'center',
-              marginBottom: '28px',
-            }}
-          >
-            {SHOWCASE_TABS.map((tab) => {
-              const active = tab.id === activeTab.id;
-              return (
+          <div className="syntax-showcase">
+            <div className="syntax-tabs" role="tablist" aria-label="Clarity language examples" onKeyDown={handleTabKeyDown}>
+              {SYNTAX_TABS.map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab)}
-                  className={`btn ${active ? 'btn-primary' : 'btn-secondary'}`}
-                  style={{
-                    padding: '8px 18px',
-                    fontSize: '0.88rem',
-                  }}
+                  type="button"
+                  id={'syntax-tab-' + tab.id}
+                  role="tab"
+                  aria-selected={activeTab === tab.id}
+                  aria-controls="syntax-panel"
+                  tabIndex={activeTab === tab.id ? 0 : -1}
+                  className={activeTab === tab.id ? 'syntax-tab active' : 'syntax-tab'}
+                  onClick={() => setActiveTab(tab.id)}
                 >
-                  {tab.title}
+                  {tab.label}
                 </button>
-              );
-            })}
-          </div>
-
-          <div style={{ maxWidth: '840px', margin: '0 auto' }}>
-            <CodeBlock
-              code={activeTab.code}
-              filename={activeTab.filename}
-              output={activeTab.output}
-              showLineNumbers={true}
-            />
-            <p
-              style={{
-                fontSize: '0.9rem',
-                color: 'var(--text-muted)',
-                textAlign: 'center',
-                marginTop: '16px',
-              }}
-            >
-              {activeTab.description}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ====================================================================
-          THE CLARITY ECOSYSTEM
-          ==================================================================== */}
-      <section
-        className="section"
-        style={{
-          background: 'var(--bg-surface)',
-          borderTop: '1px solid var(--border-subtle)',
-          borderBottom: '1px solid var(--border-subtle)',
-        }}
-      >
-        <div className="container">
-          <div style={{ textAlign: 'center', maxWidth: '680px', margin: '0 auto 48px' }}>
-            <span className="badge" style={{ marginBottom: '12px' }}>
-              Platform Architecture
-            </span>
-            <h2 style={{ fontSize: '2.2rem', marginBottom: '16px' }}>
-              The Clarity Ecosystem
-            </h2>
-            <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)' }}>
-              Clarity is built on strict decoupling: the language core is headless and pure, surrounded by dedicated toolchains, portals, and editor tools.
-            </p>
-          </div>
-
-          <EcosystemDiagram />
-        </div>
-      </section>
-
-      {/* ====================================================================
-          CURRENT STATUS & ROADMAP
-          ==================================================================== */}
-      <section className="section">
-        <div className="container">
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '40px',
-              alignItems: 'start',
-            }}
-          >
-            <div>
-              <span className="badge badge-success" style={{ marginBottom: '12px' }}>
-                Completed Milestones
-              </span>
-              <h2 style={{ fontSize: '2rem', marginBottom: '16px' }}>
-                Active Progress
-              </h2>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>
-                Clarity 0.6.0 is the result of continuous, test-driven language design passes.
-              </p>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {[
-                  { ver: '0.1.0', name: 'Core Language', desc: 'Variables, math operators, precedence, say output.' },
-                  { ver: '0.1.1', name: 'Foundation Hardening', desc: 'Lexer improvements, comments, unary operators, source spans.' },
-                  { ver: '0.2.0', name: 'Control Flow', desc: 'if/else if/else, while, numeric range loops, break/continue.' },
-                  { ver: '0.3.0', name: 'Functions & Closures', desc: 'First-class functions, parameter chains, return, lexical closures.' },
-                  { ver: '0.4.0', name: 'Data & Readability', desc: 'List/dict/string indexing, for each, repeat N times, comparison phrases.' },
-                  { ver: '0.5.0', name: 'Standard Library', desc: 'Built-in Text, Collections, Math, Random, and Files with zero Python exception leaks.' },
-                  { ver: '0.6.0', name: 'Modules & Projects', desc: 'Imports, dot access, conf.clr projects, clarity run/new/test, and a Windows installer.' },
-                ].map((item) => (
-                  <div
-                    key={item.ver}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: '12px',
-                      padding: '12px 16px',
-                      background: 'var(--bg-card)',
-                      borderRadius: 'var(--radius-md)',
-                      border: '1px solid var(--border-subtle)',
-                    }}
-                  >
-                    <CheckCircle2 size={18} color="#10b981" style={{ marginTop: '2px', flexShrink: 0 }} />
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-primary)' }}>
-                        {item.ver} — {item.name}
-                      </div>
-                      <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                        {item.desc}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              ))}
             </div>
-
-            <div>
-              <span className="badge" style={{ marginBottom: '12px' }}>
-                Upcoming Milestones
-              </span>
-              <h2 style={{ fontSize: '2rem', marginBottom: '16px' }}>
-                Future Direction
-              </h2>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>
-                Upcoming enhancements planned for the Clarity language and ecosystem.
-              </p>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {[
-                  { name: 'Toolchain Enhancements', desc: 'Code formatter, static checks, and editor integration.' },
-                  { name: 'Native Packages', desc: 'Standalone distribution for macOS (Homebrew) and Linux.' },
-                  { name: 'Clarity Website Launch', desc: 'Interactive web platform and documentation portal at clarity.creebrine.com.' },
-                  { name: 'Dedicated Clarity Editor', desc: 'Lightweight development environment with real-time parse diagnostics and auto-completion.' },
-                ].map((item, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: '12px',
-                      padding: '12px 16px',
-                      background: 'rgba(255, 255, 255, 0.02)',
-                      borderRadius: 'var(--radius-md)',
-                      border: '1px solid var(--border-subtle)',
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: '18px',
-                        height: '18px',
-                        borderRadius: '50%',
-                        border: '2px dashed var(--accent)',
-                        marginTop: '2px',
-                        flexShrink: 0,
-                      }}
-                    />
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-primary)' }}>
-                        {item.name}
-                      </div>
-                      <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                        {item.desc}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+            <div className="syntax-content" id="syntax-panel" role="tabpanel" aria-labelledby={'syntax-tab-' + activeTab} tabIndex={0}>
+              <div className="syntax-description">
+                <span className="syntax-file">{activeExample.filename}</span>
+                <p>{activeExample.note}</p>
               </div>
+              <CodeBlock code={activeExample.code} filename={activeExample.filename} output={activeExample.output} />
+            </div>
+          </div>
+          <div className="center-link">
+            <Link to="/examples" className="text-link">Explore the examples <ArrowRight size={15} /></Link>
+            <Link to="/docs/language" className="text-link">Read the language guide <ArrowRight size={15} /></Link>
+          </div>
+        </div>
+      </section>
 
-              <div style={{ marginTop: '24px' }}>
-                <Link to="/roadmap" className="btn btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
-                  <span>View Full Roadmap</span>
-                  <ArrowRight size={15} />
-                </Link>
+      <section className="section" aria-labelledby="available-title">
+        <div className="container">
+          <div className="split-heading">
+            <div>
+              <span className="section-kicker">WHAT EXISTS TODAY</span>
+              <h2 id="available-title">A working foundation, not a mockup.</h2>
+            </div>
+            <p>The public 0.6.0 release is the baseline. New toolchain work is being built and tested in 0.7.0 development, with release status kept separate.</p>
+          </div>
+          <div className="available-grid">
+            {AVAILABLE.map((item) => (
+              <article className="available-card" key={item.title}>
+                <div className="available-card-top">
+                  <span className="feature-icon" aria-hidden="true">{item.icon}</span>
+                  <span className="status-text">{item.status}</span>
+                </div>
+                <h3>{item.title}</h3>
+                <p>{item.detail}</p>
+              </article>
+            ))}
+          </div>
+          <div className="toolchain-note">
+            <div className="toolchain-note-icon"><Sparkles size={19} /></div>
+            <div>
+              <strong>0.7.0 is where the developer workflow expands.</strong>
+              <p>Formatting, static analysis, language-server support, and editor integrations are implemented in the current development work. They are not advertised as released features until a version containing them is published.</p>
+            </div>
+            <Link to="/roadmap" className="text-link">Track progress <ArrowRight size={15} /></Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="section vision-section" aria-labelledby="vision-title">
+        <div className="container">
+          <div className="section-heading">
+            <span className="section-kicker">THE LONGER-TERM VISION</span>
+            <h2 id="vision-title">One connected development experience.</h2>
+            <p>
+              The ambition is not a collection of unrelated utilities. It is a connected environment where the language, tools, learning, remote work, and integrations understand the same project and the same source of truth.
+            </p>
+          </div>
+
+          <div className="vision-hub">
+            <div className="vision-hub-core">
+              <div className="vision-hub-mark"><Terminal size={23} /></div>
+              <div><strong>Clarity</strong><span>Language + shared intelligence</span></div>
+            </div>
+            <div className="vision-hub-grid">
+              {VISION.map((item) => (
+                <article className="vision-card" key={item.name}>
+                  <div className="vision-card-head">
+                    <span className="feature-icon" aria-hidden="true">{item.icon}</span>
+                    <span className="future-label">{item.status}</span>
+                  </div>
+                  <h3>{item.name}</h3>
+                  <p>{item.description}</p>
+                </article>
+              ))}
+            </div>
+            <div className="vision-unified">
+              <div className="vision-unified-icon"><Layers size={21} /></div>
+              <div>
+                <span className="section-kicker">UNIFIED DEVELOPMENT APPLICATION · CONCEPT DIRECTION</span>
+                <h3>A single workspace for building with Clarity.</h3>
+                <p>An integrated editor, AI development agent, project workspace, debugging and language intelligence, terminal, tests, builds, packaging, learning, and remote development—designed to work together across desktop, web, and mobile.</p>
               </div>
             </div>
           </div>
+          <p className="vision-footnote">These are long-term directions, not promises of availability or release dates. Product naming and implementation details may evolve.</p>
         </div>
       </section>
 
-      {/* ====================================================================
-          CALL TO ACTION (OPEN SOURCE & GITHUB)
-          ==================================================================== */}
-      <section
-        className="section"
-        style={{
-          borderTop: '1px solid var(--border-subtle)',
-          background: 'linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-body) 100%)',
-          textAlign: 'center',
-        }}
-      >
-        <div className="container" style={{ maxWidth: '680px' }}>
-          <h2 style={{ fontSize: '2.4rem', marginBottom: '16px' }}>
-            Join the Clarity Journey
-          </h2>
-          <p
-            style={{
-              fontSize: '1.1rem',
-              color: 'var(--text-secondary)',
-              lineHeight: 1.6,
-              marginBottom: '32px',
-            }}
-          >
-            Clarity is completely open source under the MIT License. Explore the implementation, inspect tests, and follow milestone progress.
-          </p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
-            <a
-              href="https://github.com/creebrinemc/clarity"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-primary"
-            >
-              <GithubIcon size={18} />
-              <span>Explore on GitHub</span>
-            </a>
-            <Link to="/docs" className="btn btn-secondary">
-              <BookOpen size={18} />
-              <span>Read Documentation</span>
-            </Link>
+      <section className="section" aria-labelledby="principles-title">
+        <div className="container principles-layout">
+          <div>
+            <span className="section-kicker">WHY BUILD WITH CLARITY?</span>
+            <h2 id="principles-title">Less time decoding. More time creating.</h2>
+            <p className="principles-intro">Clarity is for developers who value code that communicates intent, a language implementation they can inspect, and tools that grow from the same foundations.</p>
+          </div>
+          <div className="principles-list">
+            <div><span>01</span><p><strong>Read the program as a program.</strong> Expressive keywords and comparison phrases put intent closer to the surface.</p></div>
+            <div><span>02</span><p><strong>Keep the structure explicit.</strong> A real parser, AST, runtime, modules, and project model provide the foundations behind the syntax.</p></div>
+            <div><span>03</span><p><strong>Grow with the ecosystem.</strong> Start with the language and CLI; add editor, learning, and workflow tools as they mature.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section className="final-cta">
+        <div className="container final-cta-inner">
+          <div>
+            <span className="section-kicker">YOUR NEXT STEP</span>
+            <h2>Give your ideas a clearer way to run.</h2>
+            <p>Start with the language, explore the docs, or follow the work as the ecosystem develops.</p>
+          </div>
+          <div className="hero-actions">
+            <Link to="/install" className="btn btn-primary"><Package size={17} /> Get Clarity <ArrowRight size={15} /></Link>
+            <Link to="/roadmap" className="btn btn-secondary">Explore the roadmap</Link>
           </div>
         </div>
       </section>
     </div>
   );
 };
+
+export default Home;
