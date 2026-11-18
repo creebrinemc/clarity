@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight, ArrowUpRight, BookOpen, Braces, CheckCircle2, Code2,
-  Compass, Cpu, GraduationCap, Layers, Monitor, Network, Package,
+  Compass, GraduationCap, Layers, Monitor, Network, Package,
   ShieldCheck, Sparkles, Terminal, Workflow, Zap,
 } from 'lucide-react';
 import { GithubIcon } from '../components/GithubIcon';
