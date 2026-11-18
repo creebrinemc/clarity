@@ -505,37 +505,42 @@ repeat 2 times {
             </p>
           </div>
 
-          <h2 style={{ fontSize: '1.4rem', marginTop: '24px', marginBottom: '14px' }}>Decoupled Architecture</h2>
-          <p style={{ marginBottom: '20px', lineHeight: 1.6 }}>
-            Clarity is engineered around strict component decoupling. The language core is completely headless and free of UI, GUI, or platform-specific packaging dependencies.
+          <h2 style={{ fontSize: '1.4rem', marginTop: '24px', marginBottom: '14px' }}>A layered, connected ecosystem</h2>
+          <p style={{ marginBottom: '20px', lineHeight: 1.7 }}>
+            Clarity keeps the language engine independent from interfaces and platform packaging. Shared language services connect the CLI and editor integrations, while future learning and remote tools build on those same foundations.
           </p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginTop: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginTop: '24px' }}>
             <div className="card">
               <h4 style={{ color: 'var(--accent)', marginBottom: '8px' }}>1. Language Core</h4>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                Lexer, parser, AST, visitor evaluator, lexical closures, and built-in standard library.
+                The authoritative lexer, parser, AST, evaluator, runtime, modules, semantics, and standard library. The core remains headless and reusable.
               </p>
             </div>
             <div className="card">
-              <h4 style={{ color: 'var(--accent-purple)', marginBottom: '8px' }}>2. Toolchain</h4>
+              <h4 style={{ color: 'var(--accent-purple)', marginBottom: '8px' }}>2. CLI &amp; Toolchain</h4>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                CLI runner, project generator (`clarity new`), test harness (`clarity test`), and native OS installers.
+                The 0.6.0 release includes run, project scaffolding, modules, and tests. The formatter, static checker, and language server are implemented in 0.7.0 development work and are not yet released.
               </p>
             </div>
             <div className="card">
-              <h4 style={{ color: 'var(--accent-emerald)', marginBottom: '8px' }}>3. Website</h4>
+              <h4 style={{ color: 'var(--accent-emerald)', marginBottom: '8px' }}>3. Editor Integrations</h4>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                Documentation, examples, downloads, and roadmap transparency at clarity.creebrine.com.
+                VS Code and JetBrains integrations are being developed around Clarity's language server. They remain development builds until included in a public release.
               </p>
             </div>
             <div className="card">
-              <h4 style={{ color: 'var(--accent-rose)', marginBottom: '8px' }}>4. Clarity Editor</h4>
+              <h4 style={{ color: 'var(--accent-rose)', marginBottom: '8px' }}>4. Website &amp; Learning</h4>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                Dedicated development environment with real-time syntax diagnostics and autocomplete.
+                The official website brings together documentation, examples, installation guidance, and a transparent roadmap. Richer learning experiences are a future direction.
               </p>
             </div>
           </div>
+
+          <h2 style={{ fontSize: '1.4rem', marginTop: '34px', marginBottom: '14px' }}>Long-term concepts</h2>
+          <p style={{ marginBottom: '14px', lineHeight: 1.7 }}>
+            The broader vision includes Clarity Bridge for code interoperability, Clarity Remote for secure and authorized remote development workflows, Teach Me Clarity for source-aware learning, and a sandboxed browser Playground. A unified development application may bring editing, AI assistance, project management, language intelligence, terminal, tests, builds, and packaging into one coherent workspace. These concepts are planned directions, not current product features.
+          </p>
         </div>
       ),
     },

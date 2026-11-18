@@ -48,7 +48,7 @@ const MILESTONES: Milestone[] = [
     title: 'Data and readability',
     status: 'shipped',
     description: 'Collections and natural-language comparison aliases made the language more expressive.',
-    highlights: ['Lists, dictionaries, and 0-based indexing', 'Indexed mutation and dot member access foundations', 'is at least / is greater than comparison phrases', 'for each and repeat N times'],
+    highlights: ['Lists, dictionaries, and 0-based indexing', 'Indexed mutation on lists and dictionaries', 'is at least / is greater than comparison phrases', 'for each and repeat N times'],
   },
   {
     version: '0.5.0',
